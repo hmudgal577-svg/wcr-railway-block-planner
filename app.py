@@ -774,13 +774,12 @@ metrics = [
 
 for col, label, val, color, sub in metrics:
     with col:
-        st.markdown(f"""
-        <div class="glass-card">
-            <div class="kpi-title">{label}</div>
-            <div class="kpi-num" style="color:{color};">{val}</div>
-            <div class="kpi-sub">{sub}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="glass-card"><div class="kpi-title">{label}</div>'
+            f'<div class="kpi-num" style="color:{color};">{val}</div>'
+            f'<div class="kpi-sub">{sub}</div></div>',
+            unsafe_allow_html=True
+        )
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -1182,40 +1181,36 @@ st.caption("Benchmarking WCR Jabalpur Division asset productivity and schedule a
 p_col1, p_col2, p_col3, p_col4 = st.columns(4)
 
 with p_col1:
-    st.markdown("""
-    <div class="glass-card" style="border-left: 4px solid #38bdf8;">
-        <div class="kpi-title">Corridor Throughput Recovered</div>
-        <div class="kpi-num" style="color:#38bdf8;">+18.4 Hours</div>
-        <div class="kpi-sub" style="color:#34d399;">▲ 14.2% Capacity Savings vs Manual</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div class="glass-card" style="border-left: 4px solid #38bdf8;">'
+        '<div class="kpi-title">Corridor Throughput Recovered</div>'
+        '<div class="kpi-num" style="color:#38bdf8;">+18.4 Hours</div>'
+        '<div class="kpi-sub" style="color:#34d399;">▲ 14.2% Capacity Savings vs Manual</div>'
+        '</div>', unsafe_allow_html=True)
 
 with p_col2:
-    st.markdown("""
-    <div class="glass-card" style="border-left: 4px solid #34d399;">
-        <div class="kpi-title">AI Schedule Adherence Rating</div>
-        <div class="kpi-num" style="color:#34d399;">94.2%</div>
-        <div class="kpi-sub" style="color:#34d399;">★ Industry Benchmark Grade A+</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div class="glass-card" style="border-left: 4px solid #34d399;">'
+        '<div class="kpi-title">AI Schedule Adherence Rating</div>'
+        '<div class="kpi-num" style="color:#34d399;">94.2%</div>'
+        '<div class="kpi-sub" style="color:#34d399;">★ Industry Benchmark Grade A+</div>'
+        '</div>', unsafe_allow_html=True)
 
 with p_col3:
-    st.markdown("""
-    <div class="glass-card" style="border-left: 4px solid #c084fc;">
-        <div class="kpi-title">Track Geometry Retention Index</div>
-        <div class="kpi-num" style="color:#c084fc;">98.7%</div>
-        <div class="kpi-sub" style="color:#94a3b8;">Zero Speed Restrictions Imposed</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div class="glass-card" style="border-left: 4px solid #c084fc;">'
+        '<div class="kpi-title">Track Geometry Retention Index</div>'
+        '<div class="kpi-num" style="color:#c084fc;">98.7%</div>'
+        '<div class="kpi-sub" style="color:#94a3b8;">Zero Speed Restrictions Imposed</div>'
+        '</div>', unsafe_allow_html=True)
 
 with p_col4:
-    st.markdown("""
-    <div class="glass-card" style="border-left: 4px solid #facc15;">
-        <div class="kpi-title">Multi-Branch Bundling Index</div>
-        <div class="kpi-num" style="color:#facc15;">100%</div>
-        <div class="kpi-sub" style="color:#94a3b8;">Zero Caution-Order Wastage</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div class="glass-card" style="border-left: 4px solid #facc15;">'
+        '<div class="kpi-title">Multi-Branch Bundling Index</div>'
+        '<div class="kpi-num" style="color:#facc15;">100%</div>'
+        '<div class="kpi-sub" style="color:#94a3b8;">Zero Caution-Order Wastage</div>'
+        '</div>', unsafe_allow_html=True)
 
 # --------------------------------------------------------------------------
 # TECH TELEMETRY MATRIX & CRIS PRODUCTION LOGS
@@ -1244,11 +1239,11 @@ with st.expander("🖥️ CRIS Core Engine Telemetry Matrix Logs", expanded=Fals
         "execution_time_ms": 32.4,
     }
 
-    st.markdown(f"""
-    <div class="telemetry-code">
-        <pre style="margin:0; color:#38bdf8;">{json.dumps(telemetry_data, indent=2)}</pre>
-    </div>
-    """, unsafe_allow_html=True)
+    telemetry_json = json.dumps(telemetry_data, indent=2)
+    st.markdown(
+        f'<div class="telemetry-code"><pre style="margin:0; color:#38bdf8;">{telemetry_json}</pre></div>',
+        unsafe_allow_html=True
+    )
 
 st.markdown("---")
 st.caption("🚆 Indian Railways · West Central Railway (WCR) Jabalpur Division · CRIS Core Operations Research Engine")
