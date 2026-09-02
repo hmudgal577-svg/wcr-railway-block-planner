@@ -3,7 +3,7 @@ app.py
 -------
 WEST CENTRAL RAILWAY (WCR) — JABALPUR DIVISION
 Joint Corridor Block Management & AI Decision Support System (IR-RBP)
-Enterprise Production Portal with Dual-Language Matrix, SMS Telemetry, & Tailwind UI
+Enterprise Production Portal with Dual-Language Matrix, SMS Telemetry, & Designer UI
 """
 
 import io
@@ -33,7 +33,7 @@ st.set_page_config(
 )
 
 # --------------------------------------------------------------------------
-# COLOR SCHEME & STYLING
+# DESIGNER PALETTE & STYLING
 # --------------------------------------------------------------------------
 DEPT_COLORS = {
     "Engineering": "#0284C7",  # Civil / P-Way (Track Staff)
@@ -51,10 +51,10 @@ RISK_COLORS = {
 st.markdown("""
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
     html, body, [class*="css"] {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     
     .stApp {
@@ -65,70 +65,97 @@ st.markdown("""
     section[data-testid="stSidebar"] {
         background-color: #FFFFFF;
         border-right: 1px solid #E2E8F0;
-        box-shadow: 2px 0 12px rgba(0, 0, 0, 0.03);
+        box-shadow: 2px 0 16px rgba(0, 0, 0, 0.03);
     }
 
     /* Master Real-time Clock Grid Banner */
     .master-clock-banner {
-        background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 60%, #1E40AF 100%);
-        border-radius: 12px;
-        padding: 16px 22px;
+        background: linear-gradient(135deg, #0A1428 0%, #172E6D 50%, #1D4ED8 100%);
+        border-radius: 14px;
+        padding: 18px 24px;
         color: #FFFFFF;
-        margin-bottom: 16px;
-        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+        margin-bottom: 18px;
+        box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.15);
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
         gap: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
     
     .clock-time-pill {
-        background: rgba(255, 255, 255, 0.14);
-        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        backdrop-filter: blur(8px);
         border-radius: 8px;
-        padding: 6px 14px;
+        padding: 7px 16px;
         font-family: 'JetBrains Mono', monospace;
         font-size: 13px;
         font-weight: 600;
-        color: #E2E8F0;
+        color: #F1F5F9;
         display: inline-flex;
         align-items: center;
         gap: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
-    /* Professional Elevated Cards */
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background-color: #22C55E;
+        border-radius: 50%;
+        display: inline-block;
+        box-shadow: 0 0 8px #22C55E;
+        animation: pulseAnimation 2s infinite;
+    }
+    @keyframes pulseAnimation {
+        0% { transform: scale(0.95); opacity: 0.8; }
+        50% { transform: scale(1.3); opacity: 1; }
+        100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    /* Designer Elevated Cards */
     .pro-card {
         background: #FFFFFF;
         border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        padding: 18px 20px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-        margin-bottom: 14px;
+        border-radius: 14px;
+        padding: 20px 22px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 6px 16px -4px rgba(0, 0, 0, 0.02);
+        margin-bottom: 16px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .pro-card:hover {
+        border-color: #CBD5E1;
+        box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.06);
     }
 
     /* Financial Metric Highlights */
     .fin-metric-card {
         background: #FFFFFF;
         border: 1px solid #E2E8F0;
-        border-radius: 10px;
-        padding: 16px 18px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        border-top: 3.5px solid #059669;
+        border-radius: 12px;
+        padding: 18px 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        border-top: 4px solid #059669;
+        transition: transform 0.2s ease;
+    }
+    .fin-metric-card:hover {
+        transform: translateY(-2px);
     }
     .fin-metric-title {
         font-size: 11.5px;
         font-weight: 700;
         color: #64748B;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.06em;
     }
     .fin-metric-value {
-        font-size: 24px;
+        font-size: 26px;
         font-weight: 800;
         color: #059669;
-        margin: 4px 0 2px 0;
-        line-height: 1.2;
+        margin: 6px 0 2px 0;
+        line-height: 1.15;
     }
     .fin-metric-sub {
         font-size: 12px;
@@ -140,11 +167,11 @@ st.markdown("""
     .green-logistics-banner {
         background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
         border: 1.5px solid #86EFAC;
-        border-radius: 12px;
-        padding: 20px 24px;
+        border-radius: 14px;
+        padding: 22px 26px;
         color: #065F46;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
+        margin-bottom: 22px;
+        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.1);
     }
 
     /* Status Badges */
@@ -152,54 +179,54 @@ st.markdown("""
         background: #DCFCE7;
         color: #15803D;
         border: 1px solid #86EFAC;
-        padding: 4px 10px;
+        padding: 5px 12px;
         border-radius: 999px;
         font-size: 11.5px;
         font-weight: 700;
         display: inline-flex;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
     }
     .badge-status-hold {
         background: #FEE2E2;
         color: #B91C1C;
         border: 1px solid #FCA5A5;
-        padding: 4px 10px;
+        padding: 5px 12px;
         border-radius: 999px;
         font-size: 11.5px;
         font-weight: 700;
         display: inline-flex;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
     }
 
     /* Alert Boxes */
     .pro-alert-danger {
         background: #FEF2F2;
         border: 1.5px solid #FCA5A5;
-        border-left: 4px solid #DC2626;
-        border-radius: 8px;
-        padding: 12px 16px;
+        border-left: 5px solid #DC2626;
+        border-radius: 10px;
+        padding: 14px 18px;
         color: #991B1B;
-        margin-bottom: 14px;
+        margin-bottom: 16px;
     }
     .pro-alert-warning {
         background: #FFFBEB;
         border: 1.5px solid #FDE68A;
-        border-left: 4px solid #D97706;
-        border-radius: 8px;
-        padding: 12px 16px;
+        border-left: 5px solid #D97706;
+        border-radius: 10px;
+        padding: 14px 18px;
         color: #92400E;
-        margin-bottom: 14px;
+        margin-bottom: 16px;
     }
     .pro-alert-success {
         background: #F0FDF4;
         border: 1.5px solid #BBF7D0;
-        border-left: 4px solid #16A34A;
-        border-radius: 8px;
-        padding: 14px 18px;
+        border-left: 5px solid #16A34A;
+        border-radius: 10px;
+        padding: 16px 20px;
         color: #166534;
-        margin-bottom: 14px;
+        margin-bottom: 16px;
     }
 
     /* Tab Custom Styling */
@@ -207,13 +234,13 @@ st.markdown("""
         gap: 8px;
         background-color: #E2E8F0;
         padding: 6px;
-        border-radius: 10px;
+        border-radius: 12px;
         border: 1px solid #CBD5E1;
-        margin-bottom: 14px;
+        margin-bottom: 16px;
     }
     .stTabs [data-baseweb="tab"] {
         border-radius: 8px;
-        padding: 10px 24px;
+        padding: 10px 26px;
         font-weight: 700;
         font-size: 14px;
         color: #475569;
@@ -223,7 +250,7 @@ st.markdown("""
     .stTabs [aria-selected="true"] {
         background-color: #FFFFFF !important;
         color: #1E3A8A !important;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
 
     /* HIGH-CONTRAST VISIBLE BUTTON STYLES */
@@ -231,10 +258,10 @@ st.markdown("""
         background-color: #FFFFFF !important;
         color: #0F172A !important;
         border: 1.5px solid #94A3B8 !important;
-        border-radius: 8px !important;
+        border-radius: 10px !important;
         font-weight: 700 !important;
         font-size: 13.5px !important;
-        padding: 8px 16px !important;
+        padding: 9px 18px !important;
         transition: all 0.2s ease !important;
         box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
     }
@@ -242,27 +269,29 @@ st.markdown("""
         background-color: #F1F5F9 !important;
         border-color: #1E3A8A !important;
         color: #1E3A8A !important;
+        transform: translateY(-1px);
     }
     .stButton > button[kind="primary"] {
         background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%) !important;
         color: #FFFFFF !important;
         border: 1.5px solid #1E3A8A !important;
         font-weight: 700 !important;
-        box-shadow: 0 2px 6px rgba(30, 58, 138, 0.25) !important;
+        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25) !important;
     }
     .stButton > button[kind="primary"]:hover {
         background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%) !important;
         color: #FFFFFF !important;
+        box-shadow: 0 6px 16px rgba(30, 58, 138, 0.35) !important;
     }
     .stDownloadButton > button {
         background: linear-gradient(135deg, #059669 0%, #10B981 100%) !important;
         color: #FFFFFF !important;
         border: 1.5px solid #059669 !important;
-        border-radius: 8px !important;
+        border-radius: 10px !important;
         font-weight: 700 !important;
         font-size: 13.5px !important;
-        padding: 8px 16px !important;
-        box-shadow: 0 2px 6px rgba(5, 150, 105, 0.2) !important;
+        padding: 9px 18px !important;
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2) !important;
     }
     .stDownloadButton > button:hover {
         background: #047857 !important;
@@ -303,9 +332,9 @@ st.markdown("""
     div[data-testid="stExpander"] {
         background-color: #FFFFFF !important;
         border: 1.5px solid #CBD5E1 !important;
-        border-radius: 10px !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
-        margin-top: 16px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04) !important;
+        margin-top: 18px !important;
     }
 
     /* Tag Pill Badges */
@@ -314,7 +343,7 @@ st.markdown("""
         background: #F1F5F9;
         color: #334155;
         border: 1px solid #CBD5E1;
-        padding: 2px 8px;
+        padding: 3px 10px;
         border-radius: 6px;
         font-weight: 600;
         font-size: 12px;
@@ -324,11 +353,11 @@ st.markdown("""
         background: #EFF6FF;
         border: 1px solid #BFDBFE;
         border-left: 4px solid #3B82F6;
-        border-radius: 6px;
-        padding: 8px 12px;
-        font-size: 12px;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 12.5px;
         color: #1E40AF;
-        margin-top: 6px;
+        margin-top: 8px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -762,23 +791,23 @@ target_date_str = "02 September 2026"
 time_ist_str = now_time.strftime("%H:%M:%S IST")
 time_utc_str = (now_time - timedelta(hours=5, minutes=30)).strftime("%H:%M:%S UTC")
 
-badge_status_html = '<span class="badge-status-online">● DISPATCH READY · LIVE</span>'
+badge_status_html = '<span class="badge-status-online"><span class="pulse-dot"></span> DISPATCH READY · LIVE</span>'
 if st.session_state["siren_off_halt"]:
-    badge_status_html = '<span class="badge-status-hold">● SAFETY HOLD ACTIVE · HALTED</span>'
+    badge_status_html = '<span class="badge-status-hold"><span class="pulse-dot" style="background:#EF4444; box-shadow:0 0 8px #EF4444;"></span> SAFETY HOLD ACTIVE · HALTED</span>'
 
 clock_banner_html = f"""<div class="master-clock-banner">
-<div style="display:flex; align-items:center; gap:14px;">
-<span style="font-size:28px;">🚆</span>
+<div style="display:flex; align-items:center; gap:16px;">
+<span style="font-size:32px;">🚆</span>
 <div>
-<div style="font-size:18px; font-weight:800; letter-spacing:-0.02em;">
+<div style="font-size:19px; font-weight:900; letter-spacing:-0.02em;">
 {T['portal_title']}
 </div>
-<div style="font-size:12.5px; color:#94A3B8;">
-{T['portal_sub']} &nbsp;|&nbsp; <b style="color:#38BDF8;">{st.session_state['user_dept']}</b> ({st.session_state['user_designation']})
+<div style="font-size:12.5px; color:#CBD5E1; margin-top:2px;">
+{T['portal_sub']} &nbsp;|&nbsp; <span class="tag-pill" style="background:rgba(255,255,255,0.15); color:#FFFFFF; border:none;">{st.session_state['user_dept']}</span> ({st.session_state['user_designation']})
 </div>
 </div>
 </div>
-<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
 <div class="clock-time-pill">
 🕒 <b>{target_date_str}</b> &nbsp;|&nbsp; {time_ist_str} ({time_utc_str})
 </div>
@@ -823,7 +852,7 @@ with tab_main_dispatch:
     <h5 class="text-sm font-bold text-slate-900 m-0">
         📝 {T['branch_label']}: <span class="text-blue-700">{active_dept}</span>
     </h5>
-    <span class="px-2 py-0.5 text-xs font-bold rounded-md {b_class}">{active_dept}</span>
+    <span class="px-2.5 py-0.5 text-xs font-bold rounded-md {b_class}">{active_dept}</span>
 </div>
 """, unsafe_allow_html=True)
         
@@ -980,7 +1009,6 @@ USFD Rail Flaw (35%) + Overdue Days (25%) + GMT Density (20%) + Corridor Critica
         # 4. SECURE ROLE ACCESS & AUTOMATED SMS DISPATCH
         st.markdown("---")
         
-        # Check permissions for final broadcast: strictly Department Head (Sr. DEN / Sr. DOM / Sr. DSTE / Sr. DEE), Chief Controller (CHC), or DRM
         user_desig = st.session_state["user_designation"]
         is_authorized_broadcaster = (
             "Department Head" in user_desig or 
@@ -1111,7 +1139,7 @@ with tab_freight_telemetry:
 {T['green_banner_desc']}
 </p>
 </div>
-<div style="background:#FFFFFF; border:1px solid #86EFAC; border-radius:8px; padding:6px 14px; font-weight:700; font-size:13px; color:#065F46;">
+<div style="background:#FFFFFF; border:1px solid #86EFAC; border-radius:10px; padding:8px 16px; font-weight:800; font-size:13.5px; color:#065F46; box-shadow:0 2px 6px rgba(16,185,129,0.15);">
 124.6 Tonnes CO₂e Abated / Mo
 </div>
 </div>
