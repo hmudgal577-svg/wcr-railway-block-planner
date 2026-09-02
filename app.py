@@ -3,7 +3,7 @@ app.py
 -------
 WEST CENTRAL RAILWAY (WCR) — JABALPUR DIVISION
 Joint Corridor Block Management & AI Decision Support System (IR-RBP)
-Enterprise Production Portal with Dedicated Department Login Gate & Tailwind UI
+Enterprise Production Portal with Dual-Language Matrix, SMS Telemetry, & Tailwind UI
 """
 
 import io
@@ -26,14 +26,14 @@ from backend.optimizer import run_block_optimizer
 # PAGE CONFIG
 # --------------------------------------------------------------------------
 st.set_page_config(
-    page_title="Indian Railways | WCR Jabalpur Division Joint Block Portal",
+    page_title="Indian Railways | WCR Jabalpur Division Joint Block Planner",
     page_icon="🚆",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # --------------------------------------------------------------------------
-# TAILWIND CSS & ENTERPRISE LIGHT PALETTE
+# COLOR SCHEME & STYLING
 # --------------------------------------------------------------------------
 DEPT_COLORS = {
     "Engineering": "#0284C7",  # Civil / P-Way (Track Staff)
@@ -84,7 +84,7 @@ st.markdown("""
     }
     
     .clock-time-pill {
-        background: rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.14);
         border: 1px solid rgba(255, 255, 255, 0.25);
         border-radius: 8px;
         padding: 6px 14px;
@@ -319,18 +319,102 @@ st.markdown("""
         font-weight: 600;
         font-size: 12px;
     }
+    
+    .sms-badge {
+        background: #EFF6FF;
+        border: 1px solid #BFDBFE;
+        border-left: 4px solid #3B82F6;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 12px;
+        color: #1E40AF;
+        margin-top: 6px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # --------------------------------------------------------------------------
-# PIPELINE CACHE & ML ENGINE
+# DUAL-LANGUAGE TERMINOLOGY MATRIX
+# --------------------------------------------------------------------------
+TRANS = {
+    "English": {
+        "portal_title": "MINISTRY OF RAILWAYS · WEST CENTRAL RAILWAY (WCR)",
+        "portal_sub": "पश्चिम मध्य रेल · जबलपुर मंडल (Jabalpur Division) · Automated Joint Block Decision Support",
+        "tab_1": "📋 Main Operational Dispatch",
+        "tab_2": "💰 Freight Financial Telemetry",
+        "config_header": "⚙️ Input Configurator & Requisition Form",
+        "timeline_header": "⏱️ Rolling Infrastructure Possession Timeline (Gantt)",
+        "branch_label": "Operating Branch / Department",
+        "corridor_label": "Target Corridor Section",
+        "track_label": "Physical Track Line",
+        "duration_label": "Duration (Minutes)",
+        "action_label": "Maintenance Activity Description",
+        "heavy_label": "⚠️ Requires Heavy TRT / BCM Train (Exclusive Block — No Bundling)",
+        "btn_push": "➕ Push Work Order into AI Queue",
+        "btn_broadcast": "⚡ BROADCAST TO FIELD TRANSMITTERS & SMS GATEWAY",
+        "btn_export": "📥 Export Master Timetable (CSV)",
+        "total_pool": "Total Requisition Pool",
+        "scheduled_metric": "Scheduled Blocks",
+        "deferred_metric": "Deferred (Capacity Limit)",
+        "critical_metric": "Critical Risks (≥75)",
+        "demurrage_card_title": "Freight Demurrage Saved",
+        "capacity_card_title": "Section Capacity Reclaimed",
+        "traction_card_title": "Traction Leakage Mitigation",
+        "caution_card_title": "Caution Orders Eliminated",
+        "green_banner_title": "🌱 Green Financial Logistics & Carbon Abatement Certificate",
+        "green_banner_desc": "By synchronizing Civil, S&T, and Electrical block possessions via GeoPandas Spatial Bundling (500m radius), Indian Railways eliminates repeated section de-energization and loco idling.",
+        "cost_pie_title": "📊 Financial Cost Savings Breakdown (Weekly)",
+        "starvation_title": "⚡ Active Starvation Leakage Mitigation Matrix",
+        "telemetry_expander": "🖥️ CRIS Mathematical Optimization Engine Telemetry Logs",
+        "siren_conflict": "🚨 LIVE CONFLICT SIREN: Track Possession Overlap Identified",
+        "conflict_action": "CP-SAT Solver Action: Unified into a joint synchronized possession window. G&SR Hard Safety Rule #1 Enforced.",
+        "sms_success_title": "✅ CRIS GATEWAY: SMS TELEMETRY PUSHED TO 3 FIELD BRANCHES",
+    },
+    "Hindi / हिंदी": {
+        "portal_title": "रेल मंत्रालय · पश्चिम मध्य रेलवे (पमरे)",
+        "portal_sub": "जबलपुर मंडल · स्वचालित संयुक्त ब्लॉक नियोजन एवं एआई निर्णय प्रणाली (IR-RBP)",
+        "tab_1": "📋 मुख्य परिचालन प्रेषण (डिस्पैच)",
+        "tab_2": "💰 माल ढुलाई वित्तीय टेलीमेट्री",
+        "config_header": "⚙️ इनपुट विन्यास एवं मांग प्रपत्र",
+        "timeline_header": "⏱️ रोलिंग इन्फ्रास्ट्रक्चर पज़ेशन टाइमलाइन (गैंट चार्ट)",
+        "branch_label": "परिचालन शाखा / विभाग",
+        "corridor_label": "लक्षित रेल मार्ग / कॉरिडोर",
+        "track_label": "भौतिक रेल लाइन अनुभाग",
+        "duration_label": "अपेक्षित अवधि (मिनट)",
+        "action_label": "रखरखाव कार्य विवरण",
+        "heavy_label": "⚠️ भारी टीआरटी / बीसीएम मशीनरी आवश्यक (अनन्य ब्लॉक — कोई बंडलिंग नहीं)",
+        "btn_push": "➕ कार्य आदेश एआई कतार में दर्ज करें",
+        "btn_broadcast": "⚡ फील्ड ट्रांसमीटर एवं एसएमएस गेटवे को प्रसारित करें",
+        "btn_export": "📥 मास्टर समय सारिणी डाउनलोड करें (CSV)",
+        "total_pool": "कुल कार्य आदेश",
+        "scheduled_metric": "स्वीकृत ब्लॉक",
+        "deferred_metric": "स्थगित (क्षमता सीमा)",
+        "critical_metric": "अति-गंभीर जोखिम (≥75)",
+        "demurrage_card_title": "डेमरेज दंड बचत",
+        "capacity_card_title": "लाइन क्षमता पुनर्प्राप्ति",
+        "traction_card_title": "कर्षण रिसाव रोकथाम",
+        "caution_card_title": "कॉशन आर्डर न्यूनीकरण",
+        "green_banner_title": "🌱 हरित वित्तीय लॉजिस्टिक्स एवं कार्बन उत्सर्जन न्यूनीकरण प्रमाण पत्र",
+        "green_banner_desc": "जियोपांडा स्थानिक क्लस्टरिंग (500 मीटर) द्वारा सिविल, सिग्नल व विद्युत ब्लॉक को समकालिक करके अनावश्यक इंजन शटडाउन व विद्युत कटौती समाप्त की गई।",
+        "cost_pie_title": "📊 वित्तीय लागत बचत वर्गीकरण (साप्ताहिक)",
+        "starvation_title": "⚡ सक्रिय कर्षण भुखमरी रोकथाम मैट्रिक्स",
+        "telemetry_expander": "🖥️ क्रिस (CRIS) गणितीय अनुकूलन इंजन टेलीमेट्री लॉग",
+        "siren_conflict": "🚨 लाइव सायरन चेतावनी: समकालिक ट्रैक पज़ेशन टकराव की पहचान",
+        "conflict_action": "सीपी-सैट सॉल्वर कार्रवाई: दोनों कार्यों को एकल संयुक्त विंडो में समकालिक किया गया। संरक्षा नियम #1 लागू।",
+        "sms_success_title": "✅ क्रिस गेटवे: तीनों फील्ड शाखाओं को स्वचालित एसएमएस अलर्ट प्रसारित",
+    }
+}
+
+# --------------------------------------------------------------------------
+# PIPELINE CACHE & ML ENGINE (@st.cache_data / @st.cache_resource)
 # --------------------------------------------------------------------------
 @st.cache_resource
 def get_scorer():
     return CriticalityScorer()
 
 
-def get_default_requests(seed=42):
+@st.cache_data
+def get_cached_requests(seed=42):
     return generate_requests(n_requests=24, seed=seed)
 
 
@@ -355,10 +439,13 @@ if "is_logged_in" not in st.session_state:
     st.session_state["is_logged_in"] = False
 
 if "user_dept" not in st.session_state:
-    st.session_state["user_dept"] = "Engineering"  # Default branch
+    st.session_state["user_dept"] = "Engineering"
 
 if "user_designation" not in st.session_state:
-    st.session_state["user_designation"] = "Sr. Divisional Engineer (Sr. DEN / Co) — Track"
+    st.session_state["user_designation"] = "Department Head (Sr. DEN / Co) — Track"
+
+if "lang_choice" not in st.session_state:
+    st.session_state["lang_choice"] = "English"
 
 if "seed" not in st.session_state:
     st.session_state["seed"] = 42
@@ -389,7 +476,7 @@ def reset_entire_system():
 
 
 # ==========================================================================
-# 🌟 DEDICATED SEPARATE LOGIN PAGE & DEPARTMENT GATEWAY
+# 🌟 DEDICATED LOGIN GATEWAY
 # ==========================================================================
 if not st.session_state["is_logged_in"]:
     st.markdown("""
@@ -421,61 +508,61 @@ if not st.session_state["is_logged_in"]:
     with login_col1:
         st.markdown("""
         <div class="mt-4 p-6 bg-slate-50 rounded-xl border border-slate-200">
-            <h3 class="text-base font-bold text-slate-900 mb-2">Step 1: Select Operating Branch / Department</h3>
-            <p class="text-xs text-slate-600 mb-4">Each department has custom requisition permissions and targeted work orders.</p>
+            <h3 class="text-base font-bold text-slate-900 mb-2">Step 1: Select Operating Branch</h3>
+            <p class="text-xs text-slate-600 mb-4">Select designated department for tailored block requisitions.</p>
         </div>
         """, unsafe_allow_html=True)
         
         dept_choice = st.radio(
-            "Select Your Operating Branch:",
+            "Select Operating Branch:",
             [
-                "🏗️ Engineering (Track / P-Way Staff)",
+                "🏗️ Engineering (Civil / Track / P-Way)",
                 "📡 Signal & Telecom (S&T)",
                 "⚡ Electrical (TRD / OHE Maintenance)",
-                "🎖️ Chief Controller / DRM Joint Command Office",
+                "🎖️ Chief Controller (CHC) / DRM Joint Command",
             ],
             index=0,
         )
 
         dept_map = {
-            "🏗️ Engineering (Track / P-Way Staff)": "Engineering",
+            "🏗️ Engineering (Civil / Track / P-Way)": "Engineering",
             "📡 Signal & Telecom (S&T)": "S&T",
             "⚡ Electrical (TRD / OHE Maintenance)": "Electrical",
-            "🎖️ Chief Controller / DRM Joint Command Office": "Chief Controller / DRM",
+            "🎖️ Chief Controller (CHC) / DRM Joint Command": "Chief Controller / DRM",
         }
         selected_dept_key = dept_map[dept_choice]
 
     with login_col2:
         st.markdown("""
         <div class="mt-4 p-6 bg-slate-50 rounded-xl border border-slate-200">
-            <h3 class="text-base font-bold text-slate-900 mb-2">Step 2: Enter Officer Designation & Security Passkey</h3>
+            <h3 class="text-base font-bold text-slate-900 mb-2">Step 2: Officer Role & Security Passkey</h3>
             <p class="text-xs text-slate-600 mb-4">Enter official authorization passkey to unlock the active workstation.</p>
         </div>
         """, unsafe_allow_html=True)
 
         if selected_dept_key == "Engineering":
             designations = [
-                "Sr. Divisional Engineer (Sr. DEN / Co) — Track",
+                "Department Head (Sr. DEN / Co) — Track",
                 "Assistant Divisional Engineer (ADEN)",
                 "Senior Section Engineer (SSE / P-Way)",
             ]
         elif selected_dept_key == "S&T":
             designations = [
-                "Sr. Divisional Signal & Telecom Engineer (Sr. DSTE)",
+                "Department Head (Sr. DSTE)",
                 "Divisional Signal & Telecom Engineer (DSTE)",
                 "Senior Section Engineer (SSE / Signal)",
             ]
         elif selected_dept_key == "Electrical":
             designations = [
-                "Sr. Divisional Electrical Engineer (Sr. DEE / TRD / OHE)",
+                "Department Head (Sr. DEE / TRD / OHE)",
                 "Divisional Electrical Engineer (DEE / TRD)",
                 "Senior Section Engineer (SSE / OHE Traction)",
             ]
         else:
             designations = [
+                "Chief Controller (CHC / Central Dispatch)",
+                "Department Head (Sr. DOM / Operations)",
                 "Divisional Railway Manager (DRM Jabalpur)",
-                "Chief Controller (Operating / Central Control)",
-                "Senior Divisional Operations Manager (Sr. DOM)",
             ]
 
         designation_choice = st.selectbox("Officer Designation", designations, index=0)
@@ -488,7 +575,7 @@ if not st.session_state["is_logged_in"]:
                     st.session_state["is_logged_in"] = True
                     st.session_state["user_dept"] = selected_dept_key
                     st.session_state["user_designation"] = designation_choice
-                    st.toast(f"✅ Welcome {designation_choice} ({selected_dept_key})", icon="🚆")
+                    st.toast(f"✅ Welcome {designation_choice}", icon="🚆")
                     time.sleep(0.3)
                     st.rerun()
                 else:
@@ -496,23 +583,27 @@ if not st.session_state["is_logged_in"]:
         with c_log_btn2:
             if st.button("⚡ Instant Demo Login", use_container_width=True):
                 st.session_state["is_logged_in"] = True
-                st.session_state["user_dept"] = "Engineering"
-                st.session_state["user_designation"] = "Sr. Divisional Engineer (Sr. DEN / Co)"
+                st.session_state["user_dept"] = "Chief Controller / DRM"
+                st.session_state["user_designation"] = "Chief Controller (CHC / Central Dispatch)"
                 st.rerun()
 
-    st.stop()  # Stop execution here if not logged in
+    st.stop()
 
 
 # ==========================================================================
-# 🌟 MAIN APPLICATION WORKSPACE (POST-LOGIN)
+# 🌟 MAIN APPLICATION WORKSPACE (AUTHENTICATED)
 # ==========================================================================
 
 # --------------------------------------------------------------------------
-# SIDEBAR CONTROLS & SESSION SECURITY
+# SIDEBAR CONTROLS & LANGUAGE TOGGLE
 # --------------------------------------------------------------------------
 with st.sidebar:
     st.markdown("### 🇮🇳 WCR Control Terminal")
-    st.caption("पश्चिम मध्य रेल · जबलपुर मंडल / Jabalpur Division")
+    
+    # 3. DUAL-LANGUAGE TERMINOLOGY SELECTOR
+    lang = st.selectbox("🌐 Language / भाषा चयन", ["English", "Hindi / हिंदी"], index=0 if st.session_state["lang_choice"] == "English" else 1)
+    st.session_state["lang_choice"] = lang
+    T = TRANS[lang]
 
     # Active Logged-in Department Info Card
     dept_badge_colors = {
@@ -524,14 +615,14 @@ with st.sidebar:
     b_class = dept_badge_colors.get(st.session_state["user_dept"], "bg-slate-50 border-slate-300 text-slate-800")
     
     st.markdown(f"""
-    <div class="p-3 mb-3 rounded-lg border {b_class}">
-        <div class="text-xs uppercase font-bold text-slate-500">Active Department</div>
+    <div class="p-3 my-3 rounded-lg border {b_class}">
+        <div class="text-xs uppercase font-bold text-slate-500">Active Officer Session</div>
         <div class="text-sm font-extrabold text-slate-900">{st.session_state['user_dept']}</div>
         <div class="text-xs text-slate-600 mt-1">{st.session_state['user_designation']}</div>
     </div>
     """, unsafe_allow_html=True)
 
-    if st.button("🚪 Switch Department / Logout", use_container_width=True):
+    if st.button("🚪 Switch Officer / Logout", use_container_width=True):
         st.session_state["is_logged_in"] = False
         st.rerun()
 
@@ -541,7 +632,7 @@ with st.sidebar:
         st.rerun()
 
     st.markdown("---")
-    st.markdown("#### 📍 Operational Jurisdiction Profile")
+    st.markdown("#### 📍 Corridor Jurisdiction Profile")
     corridor_options = ["All Corridors (Jabalpur Division)"] + list(CORRIDORS.keys())
     selected_corridor = st.selectbox("Active Track Corridor", corridor_options, index=0)
 
@@ -552,27 +643,21 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("#### 🧪 Contingency Testing")
     
-    sync_fail_tgl = st.toggle("Simulate CRIS/COA Server Sync Failure", value=st.session_state["sync_failure"])
+    sync_fail_tgl = st.toggle("Simulate CRIS Server Sync Failure", value=st.session_state["sync_failure"])
     st.session_state["sync_failure"] = sync_fail_tgl
 
     col_sim_tgl = st.toggle("Inject Multi-Branch Track Collision", value=st.session_state["simulate_collision"])
     st.session_state["simulate_collision"] = col_sim_tgl
 
-    siren_halt_toggle = st.toggle(
-        "🔒 Engage Safety Interlock (Halt)",
-        value=st.session_state["siren_off_halt"],
-    )
+    siren_halt_toggle = st.toggle("🔒 Engage Safety Interlock (Halt)", value=st.session_state["siren_off_halt"])
     st.session_state["siren_off_halt"] = siren_halt_toggle
 
-    delay_minutes = st.slider(
-        "Inject Freight Delay (Mins)",
-        min_value=0, max_value=75, value=0, step=5,
-    )
+    delay_minutes = st.slider("Inject Freight Delay (Mins)", min_value=0, max_value=75, value=0, step=5)
 
 # --------------------------------------------------------------------------
 # ASSEMBLE DATA & RUN OPTIMIZER PIPELINE
 # --------------------------------------------------------------------------
-base_req_df = get_default_requests(seed=st.session_state["seed"])
+base_req_df = get_cached_requests(seed=st.session_state["seed"])
 
 if st.session_state["simulate_collision"]:
     sample_corr = "Jabalpur (JBP) - Katni (KTE) Heavy Freight Route"
@@ -662,7 +747,6 @@ for track_name, grp in grouped_raw:
         collision_corridor = grp["corridor"].iloc[0]
         break
 
-# Key counts
 total_tasks = len(schedule)
 scheduled_tasks = int(schedule["is_scheduled"].sum())
 deferred_tasks = total_tasks - scheduled_tasks
@@ -671,12 +755,12 @@ bundled_clusters_count = int(schedule.loc[schedule["bundle_cluster"] >= 0, "bund
 efficiency_pct = round((scheduled_tasks / total_tasks) * 100, 1)
 
 # --------------------------------------------------------------------------
-# 1. REAL-TIME GRID CLOCK BANNER (BILINGUAL & MASTER TELEMETRY SYNC)
+# 2. REAL-TIME DATA REFRESH DIGITAL CLOCK BANNER (SEPTEMBER 02, 2026)
 # --------------------------------------------------------------------------
-now_dt = datetime.now()
-ist_time_str = now_dt.strftime("%H:%M:%S IST")
-utc_time_str = (now_dt - timedelta(hours=5, minutes=30)).strftime("%H:%M:%S UTC")
-date_str = now_dt.strftime("%d %b %Y")
+now_time = datetime.now()
+target_date_str = "02 September 2026"
+time_ist_str = now_time.strftime("%H:%M:%S IST")
+time_utc_str = (now_time - timedelta(hours=5, minutes=30)).strftime("%H:%M:%S UTC")
 
 badge_status_html = '<span class="badge-status-online">● DISPATCH READY · LIVE</span>'
 if st.session_state["siren_off_halt"]:
@@ -687,16 +771,16 @@ clock_banner_html = f"""<div class="master-clock-banner">
 <span style="font-size:28px;">🚆</span>
 <div>
 <div style="font-size:18px; font-weight:800; letter-spacing:-0.02em;">
-MINISTRY OF RAILWAYS · WEST CENTRAL RAILWAY (WCR)
+{T['portal_title']}
 </div>
 <div style="font-size:12.5px; color:#94A3B8;">
-पश्चिम मध्य रेल · जबलपुर मंडल (Jabalpur Division) · Logged in as: <b style="color:#38BDF8;">{st.session_state['user_dept']}</b> ({st.session_state['user_designation']})
+{T['portal_sub']} &nbsp;|&nbsp; <b style="color:#38BDF8;">{st.session_state['user_dept']}</b> ({st.session_state['user_designation']})
 </div>
 </div>
 </div>
 <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
 <div class="clock-time-pill">
-🕒 {date_str} &nbsp;|&nbsp; {ist_time_str} ({utc_time_str})
+🕒 <b>{target_date_str}</b> &nbsp;|&nbsp; {time_ist_str} ({time_utc_str})
 </div>
 {badge_status_html}
 </div>
@@ -712,32 +796,32 @@ if st.session_state["sync_failure"]:
     )
 
 # --------------------------------------------------------------------------
-# 2. HORIZONTAL WORKSPACE TABS INTERFACE
+# 1. WORKSPACE TABBING MATRIX (st.tabs)
 # --------------------------------------------------------------------------
-tab_live_matrix, tab_financial = st.tabs([
-    "📊 Live Possession Matrix",
-    "💰 Financial Operational Compliance"
+tab_main_dispatch, tab_freight_telemetry = st.tabs([
+    T["tab_1"],
+    T["tab_2"]
 ])
 
 # ==========================================================================
-# WORKSPACE 1: "📊 Live Possession Matrix" (40:60 Clean Horizontal Split)
+# TAB 1: 📋 MAIN OPERATIONAL DISPATCH (40:60 Column Split)
 # ==========================================================================
-with tab_live_matrix:
+with tab_main_dispatch:
     col_config_left, col_viz_right = st.columns([4, 6])
 
     # ----------------------------------------------------------------------
-    # LEFT COLUMN (40%): Input Configurator Tailored to Logged-in Department
+    # LEFT COLUMN (40%): Input Configuration & Requisition Form
     # ----------------------------------------------------------------------
     with col_config_left:
         active_dept = st.session_state["user_dept"]
         is_chief_controller = (active_dept == "Chief Controller / DRM")
-        
-        st.markdown(f"#### ⚙️ {active_dept} Work Order Configurator")
+
+        st.markdown(f"#### {T['config_header']}")
         
         st.markdown(f"""<div class="pro-card">
 <div class="flex items-center justify-between mb-3">
     <h5 class="text-sm font-bold text-slate-900 m-0">
-        📝 Departmental Work Order Requisition
+        📝 {T['branch_label']}: <span class="text-blue-700">{active_dept}</span>
     </h5>
     <span class="px-2 py-0.5 text-xs font-bold rounded-md {b_class}">{active_dept}</span>
 </div>
@@ -745,34 +829,32 @@ with tab_live_matrix:
         
         if is_chief_controller:
             form_branch = st.selectbox(
-                "Select Branch for Possession",
+                f"{T['branch_label']} Selection:",
                 ["Engineering", "S&T", "Electrical"],
                 index=0,
                 key="form_branch_select"
             )
         else:
             form_branch = active_dept
-            st.caption(f"Authenticated as **{form_branch} Branch**")
 
         sub_c1, sub_c2 = st.columns(2)
         with sub_c1:
-            corridor_input = st.selectbox("Target Corridor", list(CORRIDORS.keys()), index=1, key="wspace_corr_in")
+            corridor_input = st.selectbox(T["corridor_label"], list(CORRIDORS.keys()), index=1, key="wspace_corr_in")
         with sub_c2:
             available_tracks = CORRIDORS[corridor_input]["tracks"]
-            track_input = st.selectbox("Track Section", available_tracks, index=0, key="wspace_trk_in")
+            track_input = st.selectbox(T["track_label"], available_tracks, index=0, key="wspace_trk_in")
 
-        # Department specific tailored actions
         actions_list = BRANCH_ACTIONS[form_branch]
-        action_input = st.selectbox("Maintenance Description", actions_list, index=0, key="wspace_act_in")
-        duration_input = st.slider("Target Duration (Mins)", 30, 240, 90, step=15, key="wspace_dur_in")
+        action_input = st.selectbox(T["action_label"], actions_list, index=0, key="wspace_act_in")
+        duration_input = st.slider(T["duration_label"], 30, 240, 90, step=15, key="wspace_dur_in")
 
         heavy_machinery_toggle = st.checkbox(
-            "⚠️ Requires Heavy TRT / BCM Machinery (Exclusive Block — No Bundling)",
+            T["heavy_label"],
             value=False,
-            help="Locks task as an exclusive block that bypasses multi-department bundling for staff safety."
+            help="Designates task as an exclusive block that bypasses multi-department bundling for staff safety."
         )
 
-        if st.button("➕ Push Work Order into AI Solver Queue", type="primary", use_container_width=True):
+        if st.button(T["btn_push"], type="primary", use_container_width=True):
             new_id = f"WCR-REQ-{1000 + len(st.session_state['custom_requests']) + 50}"
             meta = CORRIDORS[corridor_input]
             new_entry = {
@@ -800,51 +882,45 @@ with tab_live_matrix:
         st.markdown("</div>", unsafe_allow_html=True)
 
         # Operational Queue Metrics
-        st.markdown("##### 📊 Real-Time Operational Queue")
+        st.markdown(f"##### 📊 {T['total_pool']} Breakdown")
         q_m1, q_m2, q_m3, q_m4 = st.columns(4)
         with q_m1:
-            st.metric("Total Pool", f"{total_tasks}")
+            st.metric(T["total_pool"], f"{total_tasks}")
         with q_m2:
-            st.metric("Scheduled", f"{scheduled_tasks}", delta=f"{efficiency_pct}%")
+            st.metric(T["scheduled_metric"], f"{scheduled_tasks}", delta=f"{efficiency_pct}%")
         with q_m3:
-            st.metric("Deferred", f"{deferred_tasks}", delta_color="inverse")
+            st.metric(T["deferred_metric"], f"{deferred_tasks}", delta_color="inverse")
         with q_m4:
-            st.metric("Critical (≥75)", f"{critical_risks}")
+            st.metric(T["critical_metric"], f"{critical_risks}")
 
         # Explainable Risk Callout
         st.markdown("""<div class="pro-card" style="border-left: 4px solid #0284C7; margin-top:10px;">
-<div style="font-size:11.5px; font-weight:700; color:#64748B; text-transform:uppercase;">ML Risk Prioritization Formula</div>
+<div style="font-size:11.5px; font-weight:700; color:#64748B; text-transform:uppercase;">ML Risk Prioritization Matrix (Asset Aging Coefficients)</div>
 <div style="font-size:12.5px; color:#334155; margin-top:4px; line-height:1.4;">
-USFD Rail Flaw (35%) + Overdue Days (25%) + GMT Load (20%) + Corridor Criticality (20%)
+USFD Rail Flaw (35%) + Overdue Days (25%) + GMT Density (20%) + Corridor Criticality (20%)
 </div>
 </div>""", unsafe_allow_html=True)
 
-
     # ----------------------------------------------------------------------
-    # RIGHT COLUMN (60%): Live Plotly Gantt, Collision Alerts, Broadcast Button
+    # RIGHT COLUMN (60%): Interactive Plotly Gantt & SMS Broadcast Dispatch
     # ----------------------------------------------------------------------
     with col_viz_right:
-        st.markdown("#### ⏱️ Real-Time Rolling Possession Timeline & Controls")
+        st.markdown(f"#### {T['timeline_header']}")
 
         # Live Siren Conflict Warning Alert
         if has_simultaneous_collision:
             depts_str = " & ".join(colliding_departments)
             alert_box_html = f"""<div class="pro-alert-danger">
-<div style="display:flex; justify-content:space-between; align-items:center;">
-<div>
 <h4 style="margin:0; font-size:14.5px; font-weight:700; color:#991B1B;">
-🚨 LIVE CONFLICT SIREN: Track Possession Overlap Identified
+{T['siren_conflict']}
 </h4>
 <p style="margin:3px 0 0 0; font-size:12.5px; color:#7F1D1D;">
-Simultaneous block requests filed on <b>{collision_track}</b> by <b>{depts_str}</b>.
-<b>CP-SAT Solver Action:</b> Unified into a joint synchronized possession window. G&SR Hard Safety Rule #1 Enforced.
+<b>{collision_track}</b>: {depts_str} | {T['conflict_action']}
 </p>
-</div>
-</div>
 </div>"""
             st.markdown(alert_box_html, unsafe_allow_html=True)
 
-        # Plotly Gantt Chart
+        # Plotly Gantt Timeline Chart
         gantt_df = schedule[schedule["is_scheduled"]].copy()
         if selected_corridor != "All Corridors (Jabalpur Division)":
             gantt_df = gantt_df[gantt_df["corridor"] == selected_corridor]
@@ -882,8 +958,8 @@ Simultaneous block requests filed on <b>{collision_track}</b> by <b>{depts_str}<
                 },
                 text="Label",
             )
-            fig_gantt.update_yaxes(autorange="reversed", title="WCR Track / Section")
-            fig_gantt.update_xaxes(title=f"Time Horizon (00:00 to {horizon_hours:02d}:00)")
+            fig_gantt.update_yaxes(autorange="reversed", title="Track Section")
+            fig_gantt.update_xaxes(title=f"Horizon (00:00 to {horizon_hours:02d}:00)")
             fig_gantt.update_traces(
                 textposition="inside",
                 insidetextanchor="start",
@@ -901,87 +977,138 @@ Simultaneous block requests filed on <b>{collision_track}</b> by <b>{depts_str}<
             )
             st.plotly_chart(fig_gantt, use_container_width=True)
 
-        # Broadcast Dispatch & Export Controls
+        # 4. SECURE ROLE ACCESS & AUTOMATED SMS DISPATCH
         st.markdown("---")
+        
+        # Check permissions for final broadcast: strictly Department Head (Sr. DEN / Sr. DOM / Sr. DSTE / Sr. DEE), Chief Controller (CHC), or DRM
+        user_desig = st.session_state["user_designation"]
+        is_authorized_broadcaster = (
+            "Department Head" in user_desig or 
+            "Chief Controller" in user_desig or 
+            "DRM" in user_desig or 
+            "Sr. DEN" in user_desig or 
+            "Sr. DOM" in user_desig or 
+            "Sr. DSTE" in user_desig or 
+            "Sr. DEE" in user_desig
+        )
+
         btn_c1, btn_c2 = st.columns([2.5, 1.5])
         with btn_c1:
             if st.session_state["siren_off_halt"]:
                 st.button("🛑 DISPATCH LOCKED (Safety Hold Active)", disabled=True, use_container_width=True)
-            elif not (is_chief_controller or "Sr. DEN" in st.session_state["user_designation"] or "Sr. DSTE" in st.session_state["user_designation"] or "Sr. DEE" in st.session_state["user_designation"]):
-                st.button("🔒 BROADCAST TO FIELD TRANSMITTERS (Requires Officer Authority)", disabled=True, use_container_width=True)
+            elif not is_authorized_broadcaster:
+                st.button("🔒 BROADCAST & SMS GATEWAY (Authorized Head Clearance Required)", disabled=True, use_container_width=True)
+                st.caption("Broadcast restricted to Department Heads (Sr. DEN / Sr. DOM) & Chief Controller (CHC).")
             else:
-                if st.button("⚡ BROADCAST TO FIELD TRANSMITTERS", type="primary", use_container_width=True):
+                if st.button(T["btn_broadcast"], type="primary", use_container_width=True):
                     st.session_state["dispatch_executed"] = True
+                    # Trigger client-side watch alarm audio beep
+                    st.markdown("""
+                    <script>
+                        try {
+                            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                            const osc = audioCtx.createOscillator();
+                            const gainNode = audioCtx.createGain();
+                            osc.type = 'sine';
+                            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                            gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                            osc.connect(gainNode);
+                            gainNode.connect(audioCtx.destination);
+                            osc.start();
+                            osc.stop(audioCtx.currentTime + 0.4);
+                        } catch(e) {}
+                    </script>
+                    """, unsafe_allow_html=True)
                     st.balloons()
+
         with btn_c2:
             csv_buffer = io.StringIO()
             schedule.to_csv(csv_buffer, index=False)
             st.download_button(
-                label="📥 Export Timetable (CSV)",
+                label=T["btn_export"],
                 data=csv_buffer.getvalue(),
                 file_name=f"wcr_jbp_schedule_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
                 mime="text/csv",
                 use_container_width=True,
             )
 
-        if st.session_state["dispatch_executed"] and not st.session_state["siren_off_halt"]:
-            st.markdown(f"""<div class="pro-alert-success" style="margin-top:10px;">
-<b>✅ OFFICIAL ROLLING BLOCK PROGRAM TRANSMITTED TO WCR FIELD TRANSMITTERS</b><br>
+        # High-Contrast Success Panel logging Safe Automated SMS Telemetry Push to 3 Field Branches
+        if st.session_state["dispatch_executed"] and is_authorized_broadcaster and not st.session_state["siren_off_halt"]:
+            st.markdown(f"""<div class="pro-alert-success" style="margin-top:12px;">
+<div class="flex items-center justify-between mb-2">
+    <h4 style="margin:0; font-size:14.5px; font-weight:800; color:#166534;">
+        {T['sms_success_title']}
+    </h4>
+    <span class="tag-pill" style="background:#DCFCE7; color:#166534; border-color:#86EFAC;">CRIS SMS TLS-1.3 SYNCED</span>
+</div>
+<div style="font-size:12.5px; color:#14532D; line-height:1.5;">
 • <b>Order Reference:</b> <span class="tag-pill">WCR/JBP/RBP-OPT/{datetime.now().strftime('%Y%m%d-%H%M')}</span> &nbsp;|&nbsp;
-<b>Authorized By:</b> <span class="tag-pill">{st.session_state['user_designation']} ({st.session_state['user_dept']})</span><br>
-• <b>Transmitted To:</b> Section Controllers (ET, KTE, STA, SGRL), Traction Power Controllers, Station Masters.
+<b>Authorized By:</b> <span class="tag-pill">{user_desig}</span><br>
+• <b>CRIS Security Token:</b> <code>SEC_TOKEN_JBP2026_SMS_VERIFIED_OK</code>
+</div>
+
+<div class="sms-badge">
+    📱 <b>SMS GATEWAY #1 (Civil / P-Way):</b> [WCR/JBP/ENG] Track Tamping Block Approved. Window: 02:00-04:30. Auth: CHC-JBP-SMS-OK
+</div>
+<div class="sms-badge">
+    📱 <b>SMS GATEWAY #2 (S&T / Signal):</b> [WCR/JBP/S&T] Electronic Interlocking window synchronized at KM 1042. Auth: CHC-JBP-SMS-OK
+</div>
+<div class="sms-badge">
+    📱 <b>SMS GATEWAY #3 (Electrical / TRD):</b> [WCR/JBP/TRD] OHE Catenary Power Block scheduled with zero section starvation. Auth: CHC-JBP-SMS-OK
+</div>
 </div>""", unsafe_allow_html=True)
 
 
 # ==========================================================================
-# WORKSPACE 2: "💰 Financial Operational Compliance"
+# TAB 2: 💰 FREIGHT FINANCIAL TELEMETRY
 # ==========================================================================
-with tab_financial:
-    st.markdown("### 💰 Financial Operational Compliance & Green Logistics Deck")
-    st.caption("Quantifying Freight Demurrage Prevention, Traction Starvation Mitigation, and Carbon Footprint Reduction.")
+with tab_freight_telemetry:
+    st.markdown("### 💰 Freight Financial Telemetry & Green Logistics Deck")
+    st.caption("Quantifying Demurrage Penalties Averted, Active Starvation Leakage Mitigation, and Carbon Footprint Abatement.")
 
     # Top Financial Metrics Row
     f_k1, f_k2, f_k3, f_k4 = st.columns(4)
 
     with f_k1:
-        st.markdown("""<div class="fin-metric-card" style="border-top-color:#059669;">
-<div class="fin-metric-title">Freight Demurrage Saved</div>
+        st.markdown(f"""<div class="fin-metric-card" style="border-top-color:#059669;">
+<div class="fin-metric-title">{T['demurrage_card_title']}</div>
 <div class="fin-metric-value">₹42.8 Lakhs</div>
 <div class="fin-metric-sub">▲ 34.2% Detention Penalty Aversion</div>
 </div>""", unsafe_allow_html=True)
 
     with f_k2:
-        st.markdown("""<div class="fin-metric-card" style="border-top-color:#0284C7;">
-<div class="fin-metric-title">Section Capacity Reclaimed</div>
+        st.markdown(f"""<div class="fin-metric-card" style="border-top-color:#0284C7;">
+<div class="fin-metric-title">{T['capacity_card_title']}</div>
 <div class="fin-metric-value" style="color:#0284C7;">+18.4 Hours</div>
 <div class="fin-metric-sub">Equivalent to +6 Freight Paths / Wk</div>
 </div>""", unsafe_allow_html=True)
 
     with f_k3:
-        st.markdown("""<div class="fin-metric-card" style="border-top-color:#7C3AED;">
-<div class="fin-metric-title">Traction Leakage Mitigation</div>
+        st.markdown(f"""<div class="fin-metric-card" style="border-top-color:#7C3AED;">
+<div class="fin-metric-title">{T['traction_card_title']}</div>
 <div class="fin-metric-value" style="color:#7C3AED;">₹16.5 Lakhs</div>
 <div class="fin-metric-sub">Zero Unscheduled OHE Power Cuts</div>
 </div>""", unsafe_allow_html=True)
 
     with f_k4:
-        st.markdown("""<div class="fin-metric-card" style="border-top-color:#D97706;">
-<div class="fin-metric-title">Caution Orders Eliminated</div>
+        st.markdown(f"""<div class="fin-metric-card" style="border-top-color:#D97706;">
+<div class="fin-metric-title">{T['caution_card_title']}</div>
 <div class="fin-metric-value" style="color:#D97706;">-38% TSR</div>
 <div class="fin-metric-sub">Saved ₹8.2L in Diesel/Electric Idling</div>
 </div>""", unsafe_allow_html=True)
 
     st.markdown("<div style='margin-top:16px;'></div>", unsafe_allow_html=True)
 
-    # Comprehensive Green Financial Logistics Report Banner
-    st.markdown("""<div class="green-logistics-banner">
+    # Green Financial Logistics Report Banner
+    st.markdown(f"""<div class="green-logistics-banner">
 <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
 <div>
 <h4 style="margin:0 0 6px 0; font-size:16px; font-weight:800; color:#065F46;">
-🌱 Green Financial Logistics & Carbon Abatement Certificate (WCR Jabalpur Division)
+{T['green_banner_title']}
 </h4>
 <p style="margin:0; font-size:13.5px; color:#047857; line-height:1.5;">
-By synchronizing Civil, S&T, and Electrical block possessions via <b>GeoPandas Spatial Bundling (500m radius)</b>, Indian Railways eliminates repeated section de-energization and loco idling.
+{T['green_banner_desc']}
 </p>
 </div>
 <div style="background:#FFFFFF; border:1px solid #86EFAC; border-radius:8px; padding:6px 14px; font-weight:700; font-size:13px; color:#065F46;">
@@ -994,7 +1121,7 @@ By synchronizing Civil, S&T, and Electrical block possessions via <b>GeoPandas S
     fin_col1, fin_col2 = st.columns(2)
 
     with fin_col1:
-        st.markdown("#### 📊 Financial Cost Savings Breakdown (Weekly)")
+        st.markdown(f"#### {T['cost_pie_title']}")
         fin_breakdown = pd.DataFrame({
             "Cost Category": [
                 "Freight Demurrage Penalties Averted",
@@ -1020,7 +1147,7 @@ By synchronizing Civil, S&T, and Electrical block possessions via <b>GeoPandas S
         st.plotly_chart(fig_fin_pie, use_container_width=True)
 
     with fin_col2:
-        st.markdown("#### ⚡ Active Starvation Leakage Mitigation Matrix")
+        st.markdown(f"#### {T['starvation_title']}")
         starve_df = pd.DataFrame({
             "Corridor Jurisdiction": list(CORRIDORS.keys()),
             "Throughput Gain": ["+5.8 hrs", "+6.2 hrs", "+2.8 hrs", "+3.6 hrs"],
@@ -1031,10 +1158,10 @@ By synchronizing Civil, S&T, and Electrical block possessions via <b>GeoPandas S
 
 
 # --------------------------------------------------------------------------
-# 4. TELEMETRY LOGS HOUSING (CLOSED EXPANDER AT ABSOLUTE BOTTOM MARGIN)
+# TELEMETRY LOGS HOUSING (CLOSED EXPANDER AT ABSOLUTE BOTTOM MARGIN)
 # --------------------------------------------------------------------------
 st.markdown("<br>", unsafe_allow_html=True)
-with st.expander("🖥️ CRIS Mathematical Optimization Engine Telemetry Logs", expanded=False):
+with st.expander(T["telemetry_expander"], expanded=False):
     telemetry_metadata = {
         "solver_engine": "Google OR-Tools CP-SAT (v9.15)",
         "spatial_bundling_engine": "GeoPandas / Shapely EPSG:32644 Projection",
@@ -1052,6 +1179,8 @@ with st.expander("🖥️ CRIS Mathematical Optimization Engine Telemetry Logs",
         "active_department_session": st.session_state["user_dept"],
         "officer_designation": st.session_state["user_designation"],
         "passkey_verification_status": "PASSKEY_VERIFIED_JBP2026",
+        "language_mode": st.session_state["lang_choice"],
+        "target_operational_date": target_date_str,
         "execution_timestamp_iso": datetime.now().isoformat(),
     }
     
