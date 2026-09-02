@@ -3,7 +3,7 @@ app.py
 -------
 WEST CENTRAL RAILWAY (WCR) — JABALPUR DIVISION
 Joint Corridor Block Management & AI Decision Support System (IR-RBP)
-Enterprise Production Portal for Section Controllers & Chief Dispatchers
+Enterprise Production Portal with Dedicated Department Login Gate & Tailwind UI
 """
 
 import io
@@ -26,14 +26,14 @@ from backend.optimizer import run_block_optimizer
 # PAGE CONFIG
 # --------------------------------------------------------------------------
 st.set_page_config(
-    page_title="Indian Railways | WCR Jabalpur Division Joint Block Planner",
+    page_title="Indian Railways | WCR Jabalpur Division Joint Block Portal",
     page_icon="🚆",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # --------------------------------------------------------------------------
-# ENTERPRISE PALETTE & HIGH-CONTRAST LIGHT THEME
+# TAILWIND CSS & ENTERPRISE LIGHT PALETTE
 # --------------------------------------------------------------------------
 DEPT_COLORS = {
     "Engineering": "#0284C7",  # Civil / P-Way (Track Staff)
@@ -49,8 +49,9 @@ RISK_COLORS = {
 }
 
 st.markdown("""
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
     html, body, [class*="css"] {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -100,8 +101,8 @@ st.markdown("""
     .pro-card {
         background: #FFFFFF;
         border: 1px solid #E2E8F0;
-        border-radius: 10px;
-        padding: 16px 18px;
+        border-radius: 12px;
+        padding: 18px 20px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         margin-bottom: 14px;
     }
@@ -350,6 +351,15 @@ def run_pipeline(requests_df, horizon_hours, setup_buffer, delayed_corridor=None
 # --------------------------------------------------------------------------
 # SESSION STATE INITIALIZATION
 # --------------------------------------------------------------------------
+if "is_logged_in" not in st.session_state:
+    st.session_state["is_logged_in"] = False
+
+if "user_dept" not in st.session_state:
+    st.session_state["user_dept"] = "Engineering"  # Default branch
+
+if "user_designation" not in st.session_state:
+    st.session_state["user_designation"] = "Sr. Divisional Engineer (Sr. DEN / Co) — Track"
+
 if "seed" not in st.session_state:
     st.session_state["seed"] = 42
 
@@ -368,15 +378,6 @@ if "dispatch_executed" not in st.session_state:
 if "siren_off_halt" not in st.session_state:
     st.session_state["siren_off_halt"] = False
 
-if "auth_passkey" not in st.session_state:
-    st.session_state["auth_passkey"] = "JBP2026"
-
-if "is_authenticated" not in st.session_state:
-    st.session_state["is_authenticated"] = True
-
-if "lang_mode" not in st.session_state:
-    st.session_state["lang_mode"] = "English / हिन्दी"
-
 
 def reset_entire_system():
     st.session_state["seed"] = 42
@@ -387,6 +388,125 @@ def reset_entire_system():
     st.session_state["siren_off_halt"] = False
 
 
+# ==========================================================================
+# 🌟 DEDICATED SEPARATE LOGIN PAGE & DEPARTMENT GATEWAY
+# ==========================================================================
+if not st.session_state["is_logged_in"]:
+    st.markdown("""
+    <div class="max-w-4xl mx-auto mt-6 p-8 bg-white rounded-2xl shadow-xl border border-slate-200">
+        <div class="text-center pb-6 border-b border-slate-100">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-50 text-blue-800 rounded-full text-3xl mb-3 shadow-inner">
+                🚆
+            </div>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight">
+                MINISTRY OF RAILWAYS · WEST CENTRAL RAILWAY (WCR)
+            </h1>
+            <p class="text-sm font-semibold text-blue-700 mt-1 uppercase tracking-wider">
+                पश्चिम मध्य रेल · जबलपुर मंडल (Jabalpur Division)
+            </p>
+            <p class="text-xs text-slate-500 mt-1">
+                Centralized Multi-Departmental Block Planning & AI Decision Support System (IR-RBP v2.4)
+            </p>
+        </div>
+        <div class="mt-6 text-center">
+            <span class="inline-block px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-full text-xs font-bold">
+                🔐 AUTHORIZED RAILWAY PERSONNEL ACCESS GATEWAY (PASSKEY: JBP2026)
+            </span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    login_col1, login_col2 = st.columns([1, 1])
+
+    with login_col1:
+        st.markdown("""
+        <div class="mt-4 p-6 bg-slate-50 rounded-xl border border-slate-200">
+            <h3 class="text-base font-bold text-slate-900 mb-2">Step 1: Select Operating Branch / Department</h3>
+            <p class="text-xs text-slate-600 mb-4">Each department has custom requisition permissions and targeted work orders.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        dept_choice = st.radio(
+            "Select Your Operating Branch:",
+            [
+                "🏗️ Engineering (Track / P-Way Staff)",
+                "📡 Signal & Telecom (S&T)",
+                "⚡ Electrical (TRD / OHE Maintenance)",
+                "🎖️ Chief Controller / DRM Joint Command Office",
+            ],
+            index=0,
+        )
+
+        dept_map = {
+            "🏗️ Engineering (Track / P-Way Staff)": "Engineering",
+            "📡 Signal & Telecom (S&T)": "S&T",
+            "⚡ Electrical (TRD / OHE Maintenance)": "Electrical",
+            "🎖️ Chief Controller / DRM Joint Command Office": "Chief Controller / DRM",
+        }
+        selected_dept_key = dept_map[dept_choice]
+
+    with login_col2:
+        st.markdown("""
+        <div class="mt-4 p-6 bg-slate-50 rounded-xl border border-slate-200">
+            <h3 class="text-base font-bold text-slate-900 mb-2">Step 2: Enter Officer Designation & Security Passkey</h3>
+            <p class="text-xs text-slate-600 mb-4">Enter official authorization passkey to unlock the active workstation.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if selected_dept_key == "Engineering":
+            designations = [
+                "Sr. Divisional Engineer (Sr. DEN / Co) — Track",
+                "Assistant Divisional Engineer (ADEN)",
+                "Senior Section Engineer (SSE / P-Way)",
+            ]
+        elif selected_dept_key == "S&T":
+            designations = [
+                "Sr. Divisional Signal & Telecom Engineer (Sr. DSTE)",
+                "Divisional Signal & Telecom Engineer (DSTE)",
+                "Senior Section Engineer (SSE / Signal)",
+            ]
+        elif selected_dept_key == "Electrical":
+            designations = [
+                "Sr. Divisional Electrical Engineer (Sr. DEE / TRD / OHE)",
+                "Divisional Electrical Engineer (DEE / TRD)",
+                "Senior Section Engineer (SSE / OHE Traction)",
+            ]
+        else:
+            designations = [
+                "Divisional Railway Manager (DRM Jabalpur)",
+                "Chief Controller (Operating / Central Control)",
+                "Senior Divisional Operations Manager (Sr. DOM)",
+            ]
+
+        designation_choice = st.selectbox("Officer Designation", designations, index=0)
+        passkey_input = st.text_input("Ministry Security Passkey", value="JBP2026", type="password", help="Default System Passkey: JBP2026")
+
+        c_log_btn1, c_log_btn2 = st.columns(2)
+        with c_log_btn1:
+            if st.button("🚀 Authorize & Launch Workstation", type="primary", use_container_width=True):
+                if passkey_input.strip() == "JBP2026":
+                    st.session_state["is_logged_in"] = True
+                    st.session_state["user_dept"] = selected_dept_key
+                    st.session_state["user_designation"] = designation_choice
+                    st.toast(f"✅ Welcome {designation_choice} ({selected_dept_key})", icon="🚆")
+                    time.sleep(0.3)
+                    st.rerun()
+                else:
+                    st.error("❌ Invalid Passkey! Please enter JBP2026.")
+        with c_log_btn2:
+            if st.button("⚡ Instant Demo Login", use_container_width=True):
+                st.session_state["is_logged_in"] = True
+                st.session_state["user_dept"] = "Engineering"
+                st.session_state["user_designation"] = "Sr. Divisional Engineer (Sr. DEN / Co)"
+                st.rerun()
+
+    st.stop()  # Stop execution here if not logged in
+
+
+# ==========================================================================
+# 🌟 MAIN APPLICATION WORKSPACE (POST-LOGIN)
+# ==========================================================================
+
 # --------------------------------------------------------------------------
 # SIDEBAR CONTROLS & SESSION SECURITY
 # --------------------------------------------------------------------------
@@ -394,32 +514,31 @@ with st.sidebar:
     st.markdown("### 🇮🇳 WCR Control Terminal")
     st.caption("पश्चिम मध्य रेल · जबलपुर मंडल / Jabalpur Division")
 
-    # Passkey Gate Controller
-    st.markdown("#### 🔐 Secure Authorization Lock")
-    passkey_input = st.text_input("Ministry Security Passkey", value=st.session_state["auth_passkey"], type="password", help="Default System Passkey: JBP2026")
-    if passkey_input == "JBP2026":
-        st.session_state["is_authenticated"] = True
-        st.caption("✅ Authorized Access: Passkey Verified (JBP2026)")
-    else:
-        st.session_state["is_authenticated"] = False
-        st.error("❌ Invalid Passkey. Enter: JBP2026")
+    # Active Logged-in Department Info Card
+    dept_badge_colors = {
+        "Engineering": "bg-sky-50 border-sky-300 text-sky-800",
+        "S&T": "bg-amber-50 border-amber-300 text-amber-800",
+        "Electrical": "bg-purple-50 border-purple-300 text-purple-800",
+        "Chief Controller / DRM": "bg-emerald-50 border-emerald-300 text-emerald-800",
+    }
+    b_class = dept_badge_colors.get(st.session_state["user_dept"], "bg-slate-50 border-slate-300 text-slate-800")
+    
+    st.markdown(f"""
+    <div class="p-3 mb-3 rounded-lg border {b_class}">
+        <div class="text-xs uppercase font-bold text-slate-500">Active Department</div>
+        <div class="text-sm font-extrabold text-slate-900">{st.session_state['user_dept']}</div>
+        <div class="text-xs text-slate-600 mt-1">{st.session_state['user_designation']}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("🚪 Switch Department / Logout", use_container_width=True):
+        st.session_state["is_logged_in"] = False
+        st.rerun()
 
     st.markdown("---")
     if st.button("♻️ RESET ALL PARAMETERS", use_container_width=True):
         reset_entire_system()
         st.rerun()
-
-    st.markdown("---")
-    st.markdown("#### 👤 Controller Clearance & Identity")
-    security_role = st.selectbox(
-        "RBAC Authorization Level",
-        [
-            "Level 1: Section Maintenance Controller (Draft Entry)",
-            "Level 3: Chief Controller / DRM Office (Field Dispatch Authorization)",
-        ],
-        index=1,
-    )
-    is_level_3 = "Level 3" in security_role
 
     st.markdown("---")
     st.markdown("#### 📍 Operational Jurisdiction Profile")
@@ -571,7 +690,7 @@ clock_banner_html = f"""<div class="master-clock-banner">
 MINISTRY OF RAILWAYS · WEST CENTRAL RAILWAY (WCR)
 </div>
 <div style="font-size:12.5px; color:#94A3B8;">
-पश्चिम मध्य रेल · जबलपुर मंडल (Jabalpur Division) · Automated Integrated Block Decision Support (IR-RBP v2.4)
+पश्चिम मध्य रेल · जबलपुर मंडल (Jabalpur Division) · Logged in as: <b style="color:#38BDF8;">{st.session_state['user_dept']}</b> ({st.session_state['user_designation']})
 </div>
 </div>
 </div>
@@ -607,43 +726,48 @@ with tab_live_matrix:
     col_config_left, col_viz_right = st.columns([4, 6])
 
     # ----------------------------------------------------------------------
-    # LEFT COLUMN (40%): Input Configurator, Work Order Entry, Parameters
+    # LEFT COLUMN (40%): Input Configurator Tailored to Logged-in Department
     # ----------------------------------------------------------------------
     with col_config_left:
-        st.markdown("#### ⚙️ Corridor Input Configurator & Work Orders")
+        active_dept = st.session_state["user_dept"]
+        is_chief_controller = (active_dept == "Chief Controller / DRM")
         
-        # Branch Work Order Entry Box
-        st.markdown("""<div class="pro-card">
-<h5 style="margin:0 0 10px 0; font-size:14px; font-weight:700; color:#0F172A;">
-📝 Departmental Requisition Form (Passkey: JBP2026 Verified)
-</h5>
+        st.markdown(f"#### ⚙️ {active_dept} Work Order Configurator")
+        
+        st.markdown(f"""<div class="pro-card">
+<div class="flex items-center justify-between mb-3">
+    <h5 class="text-sm font-bold text-slate-900 m-0">
+        📝 Departmental Work Order Requisition
+    </h5>
+    <span class="px-2 py-0.5 text-xs font-bold rounded-md {b_class}">{active_dept}</span>
+</div>
 """, unsafe_allow_html=True)
         
+        if is_chief_controller:
+            form_branch = st.selectbox(
+                "Select Branch for Possession",
+                ["Engineering", "S&T", "Electrical"],
+                index=0,
+                key="form_branch_select"
+            )
+        else:
+            form_branch = active_dept
+            st.caption(f"Authenticated as **{form_branch} Branch**")
+
         sub_c1, sub_c2 = st.columns(2)
         with sub_c1:
-            selected_branch = st.selectbox(
-                "Operating Branch",
-                ["Engineering (Track / Civil)", "S&T (Signal & Telecom)", "Electrical (TRD / OHE)"],
-                index=0,
-                key="wspace_branch_in"
-            )
-        with sub_c2:
             corridor_input = st.selectbox("Target Corridor", list(CORRIDORS.keys()), index=1, key="wspace_corr_in")
-
-        branch_key = "Engineering" if "Engineering" in selected_branch else ("S&T" if "S&T" in selected_branch else "Electrical")
-        available_tracks = CORRIDORS[corridor_input]["tracks"]
-
-        sub_c3, sub_c4 = st.columns(2)
-        with sub_c3:
+        with sub_c2:
+            available_tracks = CORRIDORS[corridor_input]["tracks"]
             track_input = st.selectbox("Track Section", available_tracks, index=0, key="wspace_trk_in")
-        with sub_c4:
-            duration_input = st.slider("Duration (Mins)", 30, 240, 90, step=15, key="wspace_dur_in")
 
-        actions_list = BRANCH_ACTIONS[branch_key]
+        # Department specific tailored actions
+        actions_list = BRANCH_ACTIONS[form_branch]
         action_input = st.selectbox("Maintenance Description", actions_list, index=0, key="wspace_act_in")
+        duration_input = st.slider("Target Duration (Mins)", 30, 240, 90, step=15, key="wspace_dur_in")
 
         heavy_machinery_toggle = st.checkbox(
-            "⚠️ Requires Heavy TRT / BCM Train (Exclusive Block — No Bundling)",
+            "⚠️ Requires Heavy TRT / BCM Machinery (Exclusive Block — No Bundling)",
             value=False,
             help="Locks task as an exclusive block that bypasses multi-department bundling for staff safety."
         )
@@ -653,11 +777,11 @@ with tab_live_matrix:
             meta = CORRIDORS[corridor_input]
             new_entry = {
                 "request_id": new_id,
-                "department": branch_key,
+                "department": form_branch,
                 "action": action_input,
                 "corridor": corridor_input,
                 "section_track": f"{corridor_input} :: {track_input}",
-                "asset_id": f"AST-WCR-{branch_key[:3].upper()}-9901",
+                "asset_id": f"AST-WCR-{form_branch[:3].upper()}-9901",
                 "latitude": meta["lat"] + np.random.uniform(-0.01, 0.01),
                 "longitude": meta["lon"] + np.random.uniform(-0.01, 0.01),
                 "overdue_days": 75,
@@ -669,7 +793,7 @@ with tab_live_matrix:
                 "exclusive_block": heavy_machinery_toggle,
             }
             st.session_state["custom_requests"].append(new_entry)
-            st.success(f"Work Order {new_id} queued successfully!")
+            st.success(f"Work Order {new_id} queued for {form_branch}!")
             time.sleep(0.3)
             st.rerun()
 
@@ -687,9 +811,9 @@ with tab_live_matrix:
         with q_m4:
             st.metric("Critical (≥75)", f"{critical_risks}")
 
-        # Quick Explainable Risk Callout
+        # Explainable Risk Callout
         st.markdown("""<div class="pro-card" style="border-left: 4px solid #0284C7; margin-top:10px;">
-<div style="font-size:11.5px; font-weight:700; color:#64748B; text-transform:uppercase;">ML Risk Prioritization Matrix</div>
+<div style="font-size:11.5px; font-weight:700; color:#64748B; text-transform:uppercase;">ML Risk Prioritization Formula</div>
 <div style="font-size:12.5px; color:#334155; margin-top:4px; line-height:1.4;">
 USFD Rail Flaw (35%) + Overdue Days (25%) + GMT Load (20%) + Corridor Criticality (20%)
 </div>
@@ -783,8 +907,8 @@ Simultaneous block requests filed on <b>{collision_track}</b> by <b>{depts_str}<
         with btn_c1:
             if st.session_state["siren_off_halt"]:
                 st.button("🛑 DISPATCH LOCKED (Safety Hold Active)", disabled=True, use_container_width=True)
-            elif not is_level_3:
-                st.button("🔒 BROADCAST TO FIELD TRANSMITTERS (Requires Level 3)", disabled=True, use_container_width=True)
+            elif not (is_chief_controller or "Sr. DEN" in st.session_state["user_designation"] or "Sr. DSTE" in st.session_state["user_designation"] or "Sr. DEE" in st.session_state["user_designation"]):
+                st.button("🔒 BROADCAST TO FIELD TRANSMITTERS (Requires Officer Authority)", disabled=True, use_container_width=True)
             else:
                 if st.button("⚡ BROADCAST TO FIELD TRANSMITTERS", type="primary", use_container_width=True):
                     st.session_state["dispatch_executed"] = True
@@ -800,11 +924,11 @@ Simultaneous block requests filed on <b>{collision_track}</b> by <b>{depts_str}<
                 use_container_width=True,
             )
 
-        if st.session_state["dispatch_executed"] and is_level_3 and not st.session_state["siren_off_halt"]:
+        if st.session_state["dispatch_executed"] and not st.session_state["siren_off_halt"]:
             st.markdown(f"""<div class="pro-alert-success" style="margin-top:10px;">
 <b>✅ OFFICIAL ROLLING BLOCK PROGRAM TRANSMITTED TO WCR FIELD TRANSMITTERS</b><br>
 • <b>Order Reference:</b> <span class="tag-pill">WCR/JBP/RBP-OPT/{datetime.now().strftime('%Y%m%d-%H%M')}</span> &nbsp;|&nbsp;
-<b>Passkey:</b> <span class="tag-pill">JBP2026-AUTH-OK</span><br>
+<b>Authorized By:</b> <span class="tag-pill">{st.session_state['user_designation']} ({st.session_state['user_dept']})</span><br>
 • <b>Transmitted To:</b> Section Controllers (ET, KTE, STA, SGRL), Traction Power Controllers, Station Masters.
 </div>""", unsafe_allow_html=True)
 
@@ -925,7 +1049,8 @@ with st.expander("🖥️ CRIS Mathematical Optimization Engine Telemetry Logs",
         "critical_risk_count": int(critical_risks),
         "safety_interlock_hold": bool(st.session_state["siren_off_halt"]),
         "server_sync_status": "LOCAL_SQLITE_FALLBACK" if st.session_state["sync_failure"] else "ONLINE_CRIS_COA_SYNCED",
-        "auth_clearance_token": "RBAC_LVL3_CHIEF_CONTROLLER_DRM_JBP_OK" if is_level_3 else "RBAC_LVL1_MAINT_DRAFT",
+        "active_department_session": st.session_state["user_dept"],
+        "officer_designation": st.session_state["user_designation"],
         "passkey_verification_status": "PASSKEY_VERIFIED_JBP2026",
         "execution_timestamp_iso": datetime.now().isoformat(),
     }
