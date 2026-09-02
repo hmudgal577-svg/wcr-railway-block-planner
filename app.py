@@ -228,6 +228,92 @@ st.markdown("""
         font-weight: 600;
         font-size: 12px;
     }
+
+    /* HIGH-CONTRAST VISIBLE BUTTON STYLES */
+    .stButton > button {
+        background-color: #FFFFFF !important;
+        color: #0F172A !important;
+        border: 1.5px solid #94A3B8 !important;
+        border-radius: 8px !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        padding: 9px 18px !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+    }
+    .stButton > button:hover {
+        background-color: #F1F5F9 !important;
+        border-color: #1E3A8A !important;
+        color: #1E3A8A !important;
+    }
+    .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%) !important;
+        color: #FFFFFF !important;
+        border: 1.5px solid #1E3A8A !important;
+        font-weight: 700 !important;
+        box-shadow: 0 2px 6px rgba(30, 58, 138, 0.3) !important;
+    }
+    .stButton > button[kind="primary"]:hover {
+        background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%) !important;
+        color: #FFFFFF !important;
+    }
+    .stDownloadButton > button {
+        background: linear-gradient(135deg, #059669 0%, #10B981 100%) !important;
+        color: #FFFFFF !important;
+        border: 1.5px solid #059669 !important;
+        border-radius: 8px !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        padding: 9px 18px !important;
+        box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25) !important;
+    }
+    .stDownloadButton > button:hover {
+        background: #047857 !important;
+        color: #FFFFFF !important;
+    }
+    .stButton > button:disabled, .stDownloadButton > button:disabled {
+        background-color: #F1F5F9 !important;
+        color: #94A3B8 !important;
+        border: 1px solid #E2E8F0 !important;
+        box-shadow: none !important;
+        cursor: not-allowed !important;
+    }
+
+    /* Form Controls & Inputs */
+    div[data-baseweb="select"] {
+        border-radius: 8px !important;
+        border: 1.5px solid #CBD5E1 !important;
+        background-color: #FFFFFF !important;
+    }
+    div[data-baseweb="select"] * {
+        color: #0F172A !important;
+        font-weight: 500 !important;
+    }
+    .stTextInput input {
+        background-color: #FFFFFF !important;
+        color: #0F172A !important;
+        border: 1.5px solid #CBD5E1 !important;
+        border-radius: 8px !important;
+        font-weight: 500 !important;
+    }
+    .stSlider label, .stSelectbox label, .stTextInput label, .stMultiSelect label, .stCheckbox label, .stToggle label {
+        color: #0F172A !important;
+        font-weight: 700 !important;
+        font-size: 13.5px !important;
+    }
+    
+    /* Expander Container */
+    div[data-testid="stExpander"] {
+        background-color: #FFFFFF !important;
+        border: 1.5px solid #CBD5E1 !important;
+        border-radius: 10px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+        margin-bottom: 16px !important;
+    }
+    div[data-testid="stExpander"] summary {
+        font-weight: 700 !important;
+        color: #0F172A !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
