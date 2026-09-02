@@ -1,9 +1,10 @@
 """
 app.py
 -------
+GOVERNMENT OF INDIA · MINISTRY OF RAILWAYS
 WEST CENTRAL RAILWAY (WCR) — JABALPUR DIVISION
-Joint Corridor Block Management & AI Decision Support System (IR-RBP)
-World-Class Enterprise UI with Tailwind CSS, Glassmorphism, Dual-Language Matrix, & SMS Telemetry
+Joint Rolling Block Planning & Corridor Operations Portal (IR-JRBP System)
+Production Portal for Divisional Operating, Engineering, S&T, and Electrical Control
 """
 
 import io
@@ -26,325 +27,226 @@ from backend.optimizer import run_block_optimizer
 # PAGE CONFIG
 # --------------------------------------------------------------------------
 st.set_page_config(
-    page_title="Indian Railways | WCR Joint Corridor Block Planner",
+    page_title="Indian Railways | WCR Jabalpur Division Joint Block Portal",
     page_icon="🚆",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # --------------------------------------------------------------------------
-# DESIGNER PALETTE & ADVANCED TAILWIND STYLING
+# OFFICIAL INDIAN RAILWAYS COLOR SYSTEM & CLEAN TYPOGRAPHY
 # --------------------------------------------------------------------------
 DEPT_COLORS = {
-    "Engineering": "#0284C7",  # Civil / P-Way (Track Staff)
-    "S&T": "#D97706",          # Signal & Telecom
-    "Electrical": "#7C3AED",   # TRD / OHE Maintenance
+    "Engineering": "#0369A1",  # Civil / P-Way (Track)
+    "S&T": "#B45309",          # Signal & Telecom
+    "Electrical": "#6D28D9",   # TRD / OHE
 }
 
 RISK_COLORS = {
-    "CRITICAL": "#DC2626",
-    "HIGH": "#EA580C",
-    "MEDIUM": "#CA8A04",
-    "LOW": "#16A34A",
+    "CRITICAL": "#B91C1C",
+    "HIGH": "#C2410C",
+    "MEDIUM": "#A16207",
+    "LOW": "#15803D",
 }
 
 st.markdown("""
-<script src="https://cdn.tailwindcss.com"></script>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
     html, body, [class*="css"] {
-        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     
     .stApp {
-        background: radial-gradient(circle at 10% 0%, #F1F5F9 0%, #F8FAFC 50%, #F1F5F9 100%);
+        background-color: #F8FAFC;
         color: #0F172A;
     }
     
     section[data-testid="stSidebar"] {
         background-color: #FFFFFF;
         border-right: 1px solid #E2E8F0;
-        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.03);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.02);
     }
 
-    /* Master Top Header Navbar */
-    .master-clock-banner {
-        background: linear-gradient(135deg, #0A1428 0%, #172E6D 50%, #1D4ED8 100%);
-        border-radius: 16px;
-        padding: 20px 28px;
-        color: #FFFFFF;
-        margin-bottom: 20px;
-        box-shadow: 0 10px 30px -5px rgba(29, 78, 216, 0.25);
+    /* Official Government Portal Header */
+    .gov-portal-header {
+        background: #FFFFFF;
+        border: 1px solid #CBD5E1;
+        border-top: 4px solid #1E3A8A;
+        border-radius: 8px;
+        padding: 16px 22px;
+        margin-bottom: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        position: relative;
-        overflow: hidden;
-    }
-    .master-clock-banner::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 300px;
-        background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 70%);
-        pointer-events: none;
+        gap: 12px;
     }
     
-    .clock-time-pill {
-        background: rgba(255, 255, 255, 0.12);
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-radius: 10px;
-        padding: 8px 18px;
+    .gov-meta-chip {
+        background: #F1F5F9;
+        border: 1px solid #CBD5E1;
+        border-radius: 6px;
+        padding: 6px 14px;
         font-family: 'JetBrains Mono', monospace;
-        font-size: 13.5px;
+        font-size: 12px;
         font-weight: 600;
-        color: #F8FAFC;
+        color: #334155;
         display: inline-flex;
         align-items: center;
-        gap: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        gap: 8px;
     }
 
-    .pulse-dot {
-        width: 9px;
-        height: 9px;
-        background-color: #22C55E;
-        border-radius: 50%;
-        display: inline-block;
-        box-shadow: 0 0 12px #22C55E;
-        animation: pulseAnimation 2s infinite;
-    }
-    @keyframes pulseAnimation {
-        0% { transform: scale(0.9); opacity: 0.8; }
-        50% { transform: scale(1.35); opacity: 1; box-shadow: 0 0 16px #4ADE80; }
-        100% { transform: scale(0.9); opacity: 0.8; }
-    }
-
-    /* Ultra-Clean Cards */
+    /* Crisp Enterprise Cards */
     .pro-card {
         background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 16px;
-        padding: 22px 24px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 8px 24px -6px rgba(0, 0, 0, 0.04);
-        margin-bottom: 18px;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .pro-card:hover {
-        border-color: #CBD5E1;
-        box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08);
-        transform: translateY(-2px);
+        border: 1px solid #CBD5E1;
+        border-radius: 8px;
+        padding: 18px 20px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        margin-bottom: 14px;
     }
 
-    /* Metric Stat Tiles */
+    /* Structured Stat Tiles */
     .stat-tile {
         background: #FFFFFF;
         border: 1px solid #E2E8F0;
-        border-radius: 14px;
-        padding: 16px 18px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-        transition: all 0.2s ease;
-    }
-    .stat-tile:hover {
-        border-color: #94A3B8;
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        border-radius: 8px;
+        padding: 14px 16px;
     }
 
-    /* Financial Metric Highlights */
+    /* Financial Compliance Metric Cards */
     .fin-metric-card {
         background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 14px;
-        padding: 20px 22px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-        border-top: 4px solid #059669;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .fin-metric-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 24px -6px rgba(5, 150, 105, 0.15);
+        border: 1px solid #CBD5E1;
+        border-top: 3px solid #059669;
+        border-radius: 8px;
+        padding: 16px 18px;
     }
     .fin-metric-title {
         font-size: 11.5px;
-        font-weight: 800;
+        font-weight: 700;
         color: #64748B;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.04em;
     }
     .fin-metric-value {
-        font-size: 28px;
-        font-weight: 900;
-        color: #059669;
-        margin: 6px 0 2px 0;
-        line-height: 1.15;
+        font-size: 24px;
+        font-weight: 800;
+        color: #0F172A;
+        margin: 4px 0 2px 0;
+        line-height: 1.2;
     }
     .fin-metric-sub {
         font-size: 12px;
-        color: #475569;
+        color: #059669;
         font-weight: 600;
     }
 
-    /* Green Financial Logistics Report Card */
-    .green-logistics-banner {
-        background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
-        border: 1.5px solid #86EFAC;
-        border-radius: 16px;
-        padding: 24px 28px;
-        color: #065F46;
-        margin-bottom: 24px;
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.12);
-    }
-
-    /* Status Badges */
-    .badge-status-online {
-        background: #DCFCE7;
-        color: #15803D;
-        border: 1px solid #86EFAC;
-        padding: 6px 14px;
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 800;
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        box-shadow: 0 2px 6px rgba(34, 197, 94, 0.15);
-    }
-    .badge-status-hold {
-        background: #FEE2E2;
-        color: #B91C1C;
+    /* Official Alert Banners */
+    .alert-banner-danger {
+        background: #FEF2F2;
         border: 1px solid #FCA5A5;
-        padding: 6px 14px;
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 800;
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
-    }
-
-    /* Alert Boxes */
-    .pro-alert-danger {
-        background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
-        border: 1.5px solid #FCA5A5;
-        border-left: 6px solid #DC2626;
-        border-radius: 12px;
-        padding: 16px 20px;
+        border-left: 4px solid #DC2626;
+        border-radius: 6px;
+        padding: 12px 16px;
         color: #991B1B;
-        margin-bottom: 18px;
-        box-shadow: 0 4px 14px rgba(220, 38, 38, 0.08);
+        margin-bottom: 14px;
     }
-    .pro-alert-warning {
+    .alert-banner-warning {
         background: #FFFBEB;
-        border: 1.5px solid #FDE68A;
-        border-left: 6px solid #D97706;
-        border-radius: 12px;
-        padding: 16px 20px;
+        border: 1px solid #FDE68A;
+        border-left: 4px solid #D97706;
+        border-radius: 6px;
+        padding: 12px 16px;
         color: #92400E;
-        margin-bottom: 18px;
+        margin-bottom: 14px;
     }
-    .pro-alert-success {
-        background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
-        border: 1.5px solid #BBF7D0;
-        border-left: 6px solid #16A34A;
-        border-radius: 12px;
-        padding: 18px 22px;
+    .alert-banner-success {
+        background: #F0FDF4;
+        border: 1px solid #BBF7D0;
+        border-left: 4px solid #16A34A;
+        border-radius: 6px;
+        padding: 14px 18px;
         color: #166534;
-        margin-bottom: 18px;
-        box-shadow: 0 4px 14px rgba(22, 163, 74, 0.08);
+        margin-bottom: 14px;
     }
 
     /* Tab Custom Styling */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
+        gap: 6px;
         background-color: #E2E8F0;
-        padding: 6px;
-        border-radius: 14px;
+        padding: 4px;
+        border-radius: 8px;
         border: 1px solid #CBD5E1;
-        margin-bottom: 18px;
+        margin-bottom: 14px;
     }
     .stTabs [data-baseweb="tab"] {
-        border-radius: 10px;
-        padding: 12px 28px;
-        font-weight: 800;
-        font-size: 14.5px;
+        border-radius: 6px;
+        padding: 8px 22px;
+        font-weight: 700;
+        font-size: 13.5px;
         color: #475569;
         background-color: transparent;
         border: none;
-        transition: all 0.2s ease;
     }
     .stTabs [aria-selected="true"] {
         background-color: #FFFFFF !important;
         color: #1E3A8A !important;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
 
-    /* HIGH-CONTRAST VISIBLE BUTTON STYLES */
+    /* HIGH-CONTRAST PROFESSIONAL BUTTONS */
     .stButton > button {
         background-color: #FFFFFF !important;
         color: #0F172A !important;
         border: 1.5px solid #94A3B8 !important;
-        border-radius: 10px !important;
-        font-weight: 800 !important;
-        font-size: 14px !important;
-        padding: 10px 20px !important;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+        border-radius: 6px !important;
+        font-weight: 700 !important;
+        font-size: 13.5px !important;
+        padding: 8px 16px !important;
+        transition: all 0.15s ease !important;
     }
     .stButton > button:hover {
         background-color: #F1F5F9 !important;
         border-color: #1E3A8A !important;
         color: #1E3A8A !important;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
     }
     .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%) !important;
+        background: #1E3A8A !important;
         color: #FFFFFF !important;
         border: 1.5px solid #1E3A8A !important;
-        font-weight: 800 !important;
-        box-shadow: 0 4px 14px rgba(30, 58, 138, 0.25) !important;
+        font-weight: 700 !important;
     }
     .stButton > button[kind="primary"]:hover {
-        background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%) !important;
+        background: #1D4ED8 !important;
+        border-color: #1D4ED8 !important;
         color: #FFFFFF !important;
-        box-shadow: 0 8px 20px rgba(30, 58, 138, 0.35) !important;
-        transform: translateY(-2px);
     }
     .stDownloadButton > button {
-        background: linear-gradient(135deg, #059669 0%, #10B981 100%) !important;
-        color: #FFFFFF !important;
-        border: 1.5px solid #059669 !important;
-        border-radius: 10px !important;
-        font-weight: 800 !important;
-        font-size: 14px !important;
-        padding: 10px 20px !important;
-        box-shadow: 0 4px 14px rgba(5, 150, 105, 0.2) !important;
-    }
-    .stDownloadButton > button:hover {
         background: #047857 !important;
         color: #FFFFFF !important;
-        transform: translateY(-2px);
+        border: 1.5px solid #047857 !important;
+        border-radius: 6px !important;
+        font-weight: 700 !important;
+        font-size: 13.5px !important;
+        padding: 8px 16px !important;
+    }
+    .stDownloadButton > button:hover {
+        background: #065F46 !important;
+        color: #FFFFFF !important;
     }
     .stButton > button:disabled, .stDownloadButton > button:disabled {
         background-color: #F1F5F9 !important;
         color: #94A3B8 !important;
-        border: 1px solid #E2E8F0 !important;
-        box-shadow: none !important;
+        border: 1px solid #CBD5E1 !important;
         cursor: not-allowed !important;
     }
 
-    /* Form Controls & Inputs */
+    /* Form Inputs */
     div[data-baseweb="select"] {
-        border-radius: 10px !important;
+        border-radius: 6px !important;
         border: 1.5px solid #CBD5E1 !important;
         background-color: #FFFFFF !important;
     }
@@ -356,124 +258,120 @@ st.markdown("""
         background-color: #FFFFFF !important;
         color: #0F172A !important;
         border: 1.5px solid #CBD5E1 !important;
-        border-radius: 10px !important;
+        border-radius: 6px !important;
         font-weight: 600 !important;
     }
     .stSlider label, .stSelectbox label, .stTextInput label, .stMultiSelect label, .stCheckbox label, .stToggle label {
         color: #0F172A !important;
-        font-weight: 800 !important;
-        font-size: 13.5px !important;
+        font-weight: 700 !important;
+        font-size: 13px !important;
     }
     
-    /* Expander Container */
     div[data-testid="stExpander"] {
         background-color: #FFFFFF !important;
         border: 1.5px solid #CBD5E1 !important;
-        border-radius: 14px !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
-        margin-top: 20px !important;
+        border-radius: 8px !important;
+        margin-top: 16px !important;
     }
 
-    /* Tag Pill Badges */
-    .tag-pill {
+    .tag-badge {
         display: inline-block;
         background: #F1F5F9;
         color: #334155;
         border: 1px solid #CBD5E1;
-        padding: 4px 12px;
-        border-radius: 8px;
-        font-weight: 700;
-        font-size: 12.5px;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 11.5px;
     }
     
-    .sms-badge {
-        background: #EFF6FF;
-        border: 1px solid #BFDBFE;
-        border-left: 5px solid #3B82F6;
-        border-radius: 10px;
-        padding: 12px 16px;
-        font-size: 13px;
-        color: #1E40AF;
-        margin-top: 10px;
-        box-shadow: 0 1px 3px rgba(59, 130, 246, 0.05);
+    .sms-log-item {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-left: 3px solid #2563EB;
+        border-radius: 4px;
+        padding: 8px 12px;
+        font-size: 12px;
+        color: #1E293B;
+        margin-top: 6px;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # --------------------------------------------------------------------------
-# DUAL-LANGUAGE TERMINOLOGY MATRIX
+# DUAL-LANGUAGE TERMINOLOGY MATRIX (OFFICIAL RAILWAY TERMINOLOGY)
 # --------------------------------------------------------------------------
 TRANS = {
     "English": {
-        "portal_title": "MINISTRY OF RAILWAYS · WEST CENTRAL RAILWAY (WCR)",
-        "portal_sub": "पश्चिम मध्य रेल · जबलपुर मंडल (Jabalpur Division) · Automated Joint Block Decision Support",
-        "tab_1": "📋 Main Operational Dispatch",
-        "tab_2": "💰 Freight Financial Telemetry",
-        "config_header": "⚙️ Input Configurator & Requisition Form",
-        "timeline_header": "⏱️ Rolling Infrastructure Possession Timeline (Gantt)",
-        "branch_label": "Operating Branch / Department",
-        "corridor_label": "Target Corridor Section",
-        "track_label": "Physical Track Line",
-        "duration_label": "Duration (Minutes)",
-        "action_label": "Maintenance Activity Description",
-        "heavy_label": "⚠️ Requires Heavy TRT / BCM Train (Exclusive Block — No Bundling)",
-        "btn_push": "➕ Push Work Order into AI Queue",
-        "btn_broadcast": "⚡ BROADCAST TO FIELD TRANSMITTERS & SMS GATEWAY",
-        "btn_export": "📥 Export Master Timetable (CSV)",
-        "total_pool": "Total Requisition Pool",
-        "scheduled_metric": "Scheduled Blocks",
-        "deferred_metric": "Deferred (Capacity Limit)",
-        "critical_metric": "Critical Risks (≥75)",
-        "demurrage_card_title": "Freight Demurrage Saved",
-        "capacity_card_title": "Section Capacity Reclaimed",
-        "traction_card_title": "Traction Leakage Mitigation",
-        "caution_card_title": "Caution Orders Eliminated",
-        "green_banner_title": "🌱 Green Financial Logistics & Carbon Abatement Certificate",
-        "green_banner_desc": "By synchronizing Civil, S&T, and Electrical block possessions via GeoPandas Spatial Bundling (500m radius), Indian Railways eliminates repeated section de-energization and loco idling.",
-        "cost_pie_title": "📊 Financial Cost Savings Breakdown (Weekly)",
-        "starvation_title": "⚡ Active Starvation Leakage Mitigation Matrix",
-        "telemetry_expander": "🖥️ CRIS Mathematical Optimization Engine Telemetry Logs",
-        "siren_conflict": "🚨 LIVE CONFLICT SIREN: Track Possession Overlap Identified",
-        "conflict_action": "CP-SAT Solver Action: Unified into a joint synchronized possession window. G&SR Hard Safety Rule #1 Enforced.",
-        "sms_success_title": "✅ CRIS GATEWAY: SMS TELEMETRY PUSHED TO 3 FIELD BRANCHES",
+        "portal_title": "MINISTRY OF RAILWAYS · WEST CENTRAL RAILWAY",
+        "portal_sub": "Jabalpur Division · Joint Corridor Rolling Block Planning Portal (IR-JRBP)",
+        "tab_1": "📋 Master Block Timetable & Dispatch",
+        "tab_2": "💰 Division Financial & Punctuality Audit",
+        "config_header": "Departmental Block Requisition Form",
+        "timeline_header": "24-Hour Corridor Rolling Block Timetable (Gantt)",
+        "branch_label": "Operating Branch",
+        "corridor_label": "Corridor Section",
+        "track_label": "Track Line",
+        "duration_label": "Requested Duration (Mins)",
+        "action_label": "Maintenance Plan / Activity",
+        "heavy_label": "Requires Heavy Track Machine / BCM / TRT (Exclusive Possession Window)",
+        "btn_push": "Submit Work Order to Joint Queue",
+        "btn_broadcast": "AUTHORIZE & TRANSMIT ROLLING BLOCK PROGRAM (SMS)",
+        "btn_export": "Download Master Timetable (CSV)",
+        "total_pool": "Total Requisitions",
+        "scheduled_metric": "Approved Blocks",
+        "deferred_metric": "Deferred (Capacity)",
+        "critical_metric": "Priority Flaws (USFD)",
+        "demurrage_card_title": "Freight Demurrage Penalties Averted",
+        "capacity_card_title": "Section Capacity Recovered",
+        "traction_card_title": "Traction Power Loss Prevented",
+        "caution_card_title": "Caution Orders (TSR) Reduced",
+        "green_banner_title": "Rolling Block Energy & Environmental Audit Certificate",
+        "green_banner_desc": "Unified spatial possession eliminates redundant loco idling and repeated section power shutdowns, saving diesel traction and electricity.",
+        "cost_pie_title": "Operational Cost Savings Breakdown (Weekly)",
+        "starvation_title": "Section Line Capacity & Demurrage Audit Ledger",
+        "telemetry_expander": "CRIS Mathematical Operations & Server Audit Logs",
+        "siren_conflict": "Section Conflict Notice: Overlapping Departmental Requisitions",
+        "conflict_action": "Joint possession protocol applied. Combined into single synchronized window.",
+        "sms_success_title": "CRIS GATEWAY: ROLLING BLOCK PROGRAM TRANSMITTED TO FIELD DIVISIONS",
     },
     "Hindi / हिंदी": {
-        "portal_title": "रेल मंत्रालय · पश्चिम मध्य रेलवे (पमरे)",
-        "portal_sub": "जबलपुर मंडल · स्वचालित संयुक्त ब्लॉक नियोजन एवं एआई निर्णय प्रणाली (IR-RBP)",
-        "tab_1": "📋 मुख्य परिचालन प्रेषण (डिस्पैच)",
-        "tab_2": "💰 माल ढुलाई वित्तीय टेलीमेट्री",
-        "config_header": "⚙️ इनपुट विन्यास एवं मांग प्रपत्र",
-        "timeline_header": "⏱️ रोलिंग इन्फ्रास्ट्रक्चर पज़ेशन टाइमलाइन (गैंट चार्ट)",
-        "branch_label": "परिचालन शाखा / विभाग",
-        "corridor_label": "लक्षित रेल मार्ग / कॉरिडोर",
-        "track_label": "भौतिक रेल लाइन अनुभाग",
+        "portal_title": "रेल मंत्रालय · पश्चिम मध्य रेलवे",
+        "portal_sub": "जबलपुर मंडल · संयुक्त रोलिंग ब्लॉक नियोजन एवं नियंत्रण पोर्टल (IR-JRBP)",
+        "tab_1": "📋 मास्टर ब्लॉक समय-सारिणी एवं प्रेषण",
+        "tab_2": "💰 मंडल वित्तीय एवं समय-पालन ऑडिट",
+        "config_header": "विभागीय ब्लॉक मांग प्रपत्र",
+        "timeline_header": "24-घंटे कॉरिडोर रोलिंग ब्लॉक समय-सारिणी (गैंट चार्ट)",
+        "branch_label": "परिचालन शाखा",
+        "corridor_label": "कॉरिडोर खंड",
+        "track_label": "ट्रैक लाइन अनुभाग",
         "duration_label": "अपेक्षित अवधि (मिनट)",
         "action_label": "रखरखाव कार्य विवरण",
-        "heavy_label": "⚠️ भारी टीआरटी / बीसीएम मशीनरी आवश्यक (अनन्य ब्लॉक — कोई बंडलिंग नहीं)",
-        "btn_push": "➕ कार्य आदेश एआई कतार में दर्ज करें",
-        "btn_broadcast": "⚡ फील्ड ट्रांसमीटर एवं एसएमएस गेटवे को प्रसारित करें",
-        "btn_export": "📥 मास्टर समय सारिणी डाउनलोड करें (CSV)",
-        "total_pool": "कुल कार्य आदेश",
+        "heavy_label": "भारी ट्रैक मशीन / बीसीएम / टीआरटी आवश्यक (अनन्य ब्लॉक - कोई बंडलिंग नहीं)",
+        "btn_push": "कार्य आदेश संयुक्त कतार में दर्ज करें",
+        "btn_broadcast": "रोलिंग ब्लॉक कार्यक्रम अधिकृत एवं प्रसारित करें (SMS)",
+        "btn_export": "मास्टर समय-सारिणी डाउनलोड करें (CSV)",
+        "total_pool": "कुल मांग",
         "scheduled_metric": "स्वीकृत ब्लॉक",
         "deferred_metric": "स्थगित (क्षमता सीमा)",
-        "critical_metric": "अति-गंभीर जोखिम (≥75)",
+        "critical_metric": "अति-गंभीर दोष (USFD)",
         "demurrage_card_title": "डेमरेज दंड बचत",
         "capacity_card_title": "लाइन क्षमता पुनर्प्राप्ति",
-        "traction_card_title": "कर्षण रिसाव रोकथाम",
-        "caution_card_title": "कॉशन आर्डर न्यूनीकरण",
-        "green_banner_title": "🌱 हरित वित्तीय लॉजिस्टिक्स एवं कार्बन उत्सर्जन न्यूनीकरण प्रमाण पत्र",
-        "green_banner_desc": "जियोपांडा स्थानिक क्लस्टरिंग (500 मीटर) द्वारा सिविल, सिग्नल व विद्युत ब्लॉक को समकालिक करके अनावश्यक इंजन शटडाउन व विद्युत कटौती समाप्त की गई।",
-        "cost_pie_title": "📊 वित्तीय लागत बचत वर्गीकरण (साप्ताहिक)",
-        "starvation_title": "⚡ सक्रिय कर्षण भुखमरी रोकथाम मैट्रिक्स",
-        "telemetry_expander": "🖥️ क्रिस (CRIS) गणितीय अनुकूलन इंजन टेलीमेट्री लॉग",
-        "siren_conflict": "🚨 लाइव सायरन चेतावनी: समकालिक ट्रैक पज़ेशन टकराव की पहचान",
-        "conflict_action": "सीपी-सैट सॉल्वर कार्रवाई: दोनों कार्यों को एकल संयुक्त विंडो में समकालिक किया गया। संरक्षा नियम #1 लागू।",
-        "sms_success_title": "✅ क्रिस गेटवे: तीनों फील्ड शाखाओं को स्वचालित एसएमएस अलर्ट प्रसारित",
+        "traction_card_title": "कर्षण विद्युत रिसाव रोकथाम",
+        "caution_card_title": "कॉशन ऑर्डर (TSR) न्यूनीकरण",
+        "green_banner_title": "रोलिंग ब्लॉक ऊर्जा एवं पर्यावरण ऑडिट प्रमाण पत्र",
+        "green_banner_desc": "समकालिक स्थानिक ब्लॉक द्वारा अनावश्यक इंजन आइडलिंग और बार-बार विद्युत कटौती को समाप्त करके डीजल व बिजली की बचत की गई।",
+        "cost_pie_title": "परिचालन लागत बचत वर्गीकरण (साप्ताहिक)",
+        "starvation_title": "रेल लाइन क्षमता एवं डेमरेज ऑडिट खाता",
+        "telemetry_expander": "क्रिस (CRIS) गणितीय परिचालन एवं सर्वर ऑडिट लॉग",
+        "siren_conflict": "सेक्शन टकराव सूचना: समकालिक विभागीय मांग की पहचान",
+        "conflict_action": "संयुक्त पज़ेशन प्रोटोकॉल लागू। दोनों कार्यों को एकल विंडो में संयोजित किया गया।",
+        "sms_success_title": "क्रिस गेटवे: रोलिंग ब्लॉक कार्यक्रम फील्ड डिवीजनों को प्रसारित",
     }
 }
 
 # --------------------------------------------------------------------------
-# PIPELINE CACHE & ML ENGINE (@st.cache_data / @st.cache_resource)
+# PIPELINE CACHE & ML SCORER
 # --------------------------------------------------------------------------
 @st.cache_resource
 def get_scorer():
@@ -509,7 +407,7 @@ if "user_dept" not in st.session_state:
     st.session_state["user_dept"] = "Engineering"
 
 if "user_designation" not in st.session_state:
-    st.session_state["user_designation"] = "Department Head (Sr. DEN / Co) — Track"
+    st.session_state["user_designation"] = "Sr. Divisional Engineer (Sr. DEN / Track)"
 
 if "lang_choice" not in st.session_state:
     st.session_state["lang_choice"] = "English"
@@ -543,27 +441,18 @@ def reset_entire_system():
 
 
 # ==========================================================================
-# 🌟 DEDICATED LUXURY LOGIN GATEWAY
+# 🌟 PROFESSIONAL RAILWAY LOGIN PORTAL
 # ==========================================================================
 if not st.session_state["is_logged_in"]:
     st.markdown("""
-    <div class="max-w-4xl mx-auto mt-8 p-10 bg-white rounded-3xl shadow-2xl border border-slate-200/80">
-        <div class="text-center pb-8 border-b border-slate-100">
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-tr from-blue-900 to-blue-700 text-white rounded-2xl text-4xl mb-4 shadow-xl shadow-blue-900/20">
-                🚆
-            </div>
-            <h1 class="text-3xl font-black text-slate-900 tracking-tight">
-                MINISTRY OF RAILWAYS · WEST CENTRAL RAILWAY
-            </h1>
-            <p class="text-base font-bold text-blue-700 mt-1 uppercase tracking-wider">
-                पश्चिम मध्य रेल · जबलपुर मंडल (Jabalpur Division)
-            </p>
-            <p class="text-sm text-slate-500 mt-2 font-medium">
-                Integrated Multi-Department Block Management & AI Decision Support System (IR-RBP v2.4)
-            </p>
-            <div class="mt-4 flex items-center justify-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-3.5 py-1 bg-amber-50 text-amber-900 border border-amber-200/80 rounded-full text-xs font-extrabold shadow-sm">
-                    🔐 SECURE RAILWAY PERSONNEL PASSKEY GATEWAY
+    <div style="max-width: 820px; margin: 24px auto; background: #FFFFFF; border: 1px solid #CBD5E1; border-top: 5px solid #1E3A8A; border-radius: 8px; padding: 28px 36px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
+        <div style="text-align: center; padding-bottom: 20px; border-bottom: 1px solid #E2E8F0;">
+            <div style="font-size: 13px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.08em;">Government of India · Ministry of Railways</div>
+            <h1 style="margin: 4px 0; font-size: 24px; font-weight: 800; color: #0F172A;">WEST CENTRAL RAILWAY · JABALPUR DIVISION</h1>
+            <p style="margin: 0; font-size: 13px; color: #0369A1; font-weight: 600;">Joint Rolling Block Program & Operations Dispatch Portal (IR-JRBP)</p>
+            <div style="margin-top: 10px;">
+                <span style="display: inline-block; background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 4px; padding: 3px 12px; font-size: 11.5px; font-weight: 700; color: #334155;">
+                    AUTHENTICATED CONTROLLER ACCESS (DEFAULT PASSKEY: JBP2026)
                 </span>
             </div>
         </div>
@@ -574,84 +463,83 @@ if not st.session_state["is_logged_in"]:
 
     with login_col1:
         st.markdown("""
-        <div class="mt-6 p-6 bg-slate-50/80 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 class="text-base font-extrabold text-slate-900 mb-1">Step 1: Select Operating Branch</h3>
-            <p class="text-xs text-slate-500 font-medium mb-3">Customized block permissions are provisioned per branch.</p>
+        <div style="margin-top: 12px; padding: 16px 20px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px;">
+            <div style="font-size: 13px; font-weight: 700; color: #0F172A;">1. Select Operating Branch</div>
+            <div style="font-size: 12px; color: #64748B; margin-top: 2px;">Permissions are tailored per departmental jurisdiction.</div>
         </div>
         """, unsafe_allow_html=True)
         
         dept_choice = st.radio(
-            "Select Branch / Department:",
+            "Select Operating Branch:",
             [
-                "🏗️ Engineering (Civil / Track / P-Way)",
-                "📡 Signal & Telecom (S&T)",
-                "⚡ Electrical (TRD / OHE Maintenance)",
-                "🎖️ Chief Controller (CHC) / DRM Joint Command",
+                "Engineering (Civil / Track / P-Way)",
+                "Signal & Telecom (S&T)",
+                "Electrical (TRD / OHE Maintenance)",
+                "Chief Controller (CHC) / Operating Control",
             ],
             index=0,
         )
 
         dept_map = {
-            "🏗️ Engineering (Civil / Track / P-Way)": "Engineering",
-            "📡 Signal & Telecom (S&T)": "S&T",
-            "⚡ Electrical (TRD / OHE Maintenance)": "Electrical",
-            "🎖️ Chief Controller (CHC) / DRM Joint Command": "Chief Controller / DRM",
+            "Engineering (Civil / Track / P-Way)": "Engineering",
+            "Signal & Telecom (S&T)": "S&T",
+            "Electrical (TRD / OHE Maintenance)": "Electrical",
+            "Chief Controller (CHC) / Operating Control": "Chief Controller / DRM",
         }
         selected_dept_key = dept_map[dept_choice]
 
     with login_col2:
         st.markdown("""
-        <div class="mt-6 p-6 bg-slate-50/80 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 class="text-base font-extrabold text-slate-900 mb-1">Step 2: Officer Identity & Passkey</h3>
-            <p class="text-xs text-slate-500 font-medium mb-3">Default verified security passkey: <code class="font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">JBP2026</code></p>
+        <div style="margin-top: 12px; padding: 16px 20px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px;">
+            <div style="font-size: 13px; font-weight: 700; color: #0F172A;">2. Officer Designation & Security Passkey</div>
+            <div style="font-size: 12px; color: #64748B; margin-top: 2px;">Enter authorized divisional passkey: <b>JBP2026</b></div>
         </div>
         """, unsafe_allow_html=True)
 
         if selected_dept_key == "Engineering":
             designations = [
-                "Department Head (Sr. DEN / Co) — Track",
+                "Sr. Divisional Engineer (Sr. DEN / Track)",
                 "Assistant Divisional Engineer (ADEN)",
                 "Senior Section Engineer (SSE / P-Way)",
             ]
         elif selected_dept_key == "S&T":
             designations = [
-                "Department Head (Sr. DSTE)",
+                "Sr. Divisional Signal & Telecom Engineer (Sr. DSTE)",
                 "Divisional Signal & Telecom Engineer (DSTE)",
                 "Senior Section Engineer (SSE / Signal)",
             ]
         elif selected_dept_key == "Electrical":
             designations = [
-                "Department Head (Sr. DEE / TRD / OHE)",
+                "Sr. Divisional Electrical Engineer (Sr. DEE / TRD)",
                 "Divisional Electrical Engineer (DEE / TRD)",
-                "Senior Section Engineer (SSE / OHE Traction)",
+                "Senior Section Engineer (SSE / OHE)",
             ]
         else:
             designations = [
-                "Chief Controller (CHC / Central Dispatch)",
-                "Department Head (Sr. DOM / Operations)",
+                "Chief Controller (CHC / Central Control)",
+                "Sr. Divisional Operations Manager (Sr. DOM)",
                 "Divisional Railway Manager (DRM Jabalpur)",
             ]
 
-        designation_choice = st.selectbox("Officer Designation Profile", designations, index=0)
-        passkey_input = st.text_input("Ministry Security Passkey", value="JBP2026", type="password", help="Default System Passkey: JBP2026")
+        designation_choice = st.selectbox("Officer Designation", designations, index=0)
+        passkey_input = st.text_input("Divisional Security Passkey", value="JBP2026", type="password")
 
         c_log_btn1, c_log_btn2 = st.columns(2)
         with c_log_btn1:
-            if st.button("🚀 Launch Workstation", type="primary", use_container_width=True):
+            if st.button("Access Workstation", type="primary", use_container_width=True):
                 if passkey_input.strip() == "JBP2026":
                     st.session_state["is_logged_in"] = True
                     st.session_state["user_dept"] = selected_dept_key
                     st.session_state["user_designation"] = designation_choice
-                    st.toast(f"✅ Authenticated: {designation_choice}", icon="🚆")
-                    time.sleep(0.3)
+                    time.sleep(0.2)
                     st.rerun()
                 else:
-                    st.error("❌ Invalid Passkey! Please enter JBP2026.")
+                    st.error("Invalid passkey. Default passkey: JBP2026")
         with c_log_btn2:
-            if st.button("⚡ Quick Demo Access", use_container_width=True):
+            if st.button("Guest / Demo Entry", use_container_width=True):
                 st.session_state["is_logged_in"] = True
                 st.session_state["user_dept"] = "Chief Controller / DRM"
-                st.session_state["user_designation"] = "Chief Controller (CHC / Central Dispatch)"
+                st.session_state["user_designation"] = "Chief Controller (CHC / Central Control)"
                 st.rerun()
 
     st.stop()
@@ -665,61 +553,53 @@ if not st.session_state["is_logged_in"]:
 # SIDEBAR CONTROLS & LANGUAGE TOGGLE
 # --------------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("### 🇮🇳 WCR Control Terminal")
+    st.markdown("### WCR Control Terminal")
+    st.caption("Jabalpur Division · Central Control Room")
     
-    # 3. DUAL-LANGUAGE TERMINOLOGY SELECTOR
-    lang = st.selectbox("🌐 Language / भाषा चयन", ["English", "Hindi / हिंदी"], index=0 if st.session_state["lang_choice"] == "English" else 1)
+    lang = st.selectbox("Language / भाषा चयन", ["English", "Hindi / हिंदी"], index=0 if st.session_state["lang_choice"] == "English" else 1)
     st.session_state["lang_choice"] = lang
     T = TRANS[lang]
 
-    # Active Logged-in Department Info Card
-    dept_badge_colors = {
-        "Engineering": "bg-sky-50 border-sky-300 text-sky-800",
-        "S&T": "bg-amber-50 border-amber-300 text-amber-800",
-        "Electrical": "bg-purple-50 border-purple-300 text-purple-800",
-        "Chief Controller / DRM": "bg-emerald-50 border-emerald-300 text-emerald-800",
-    }
-    b_class = dept_badge_colors.get(st.session_state["user_dept"], "bg-slate-50 border-slate-300 text-slate-800")
-    
+    # Department Info Card
     st.markdown(f"""
-    <div class="p-3.5 my-3 rounded-xl border shadow-sm {b_class}">
-        <div class="text-[11px] uppercase font-bold text-slate-500 tracking-wider">Active Officer Profile</div>
-        <div class="text-sm font-black text-slate-900 mt-0.5">{st.session_state['user_dept']}</div>
-        <div class="text-xs text-slate-600 font-medium mt-1">{st.session_state['user_designation']}</div>
+    <div style="background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 6px; padding: 12px; margin: 12px 0;">
+        <div style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase;">Active Session</div>
+        <div style="font-size: 13.5px; font-weight: 800; color: #0F172A; margin-top: 2px;">{st.session_state['user_dept']}</div>
+        <div style="font-size: 12px; color: #475569; margin-top: 2px;">{st.session_state['user_designation']}</div>
     </div>
     """, unsafe_allow_html=True)
 
-    if st.button("🚪 Switch Officer / Logout", use_container_width=True):
+    if st.button("Switch Officer / Logout", use_container_width=True):
         st.session_state["is_logged_in"] = False
         st.rerun()
 
     st.markdown("---")
-    if st.button("♻️ RESET ALL PARAMETERS", use_container_width=True):
+    if st.button("Reset Operational Parameters", use_container_width=True):
         reset_entire_system()
         st.rerun()
 
     st.markdown("---")
-    st.markdown("#### 📍 Corridor Jurisdiction")
+    st.markdown("#### Corridor Jurisdiction")
     corridor_options = ["All Corridors (Jabalpur Division)"] + list(CORRIDORS.keys())
     selected_corridor = st.selectbox("Active Track Corridor", corridor_options, index=0)
 
-    st.markdown("#### ⏱️ Timetable Boundaries")
-    horizon_hours = st.slider("Planning Horizon (Hours)", min_value=6, max_value=24, value=12, step=1)
+    st.markdown("#### Planning Parameters")
+    horizon_hours = st.slider("Planning Window (Hours)", min_value=6, max_value=24, value=12, step=1)
     setup_buffer = st.slider("Safety Handover Buffer (Mins)", min_value=5, max_value=45, value=15, step=5)
 
     st.markdown("---")
-    st.markdown("#### 🧪 Contingency Testing")
+    st.markdown("#### Operational Simulation")
     
-    sync_fail_tgl = st.toggle("Simulate CRIS Server Sync Failure", value=st.session_state["sync_failure"])
+    sync_fail_tgl = st.toggle("Simulate CRIS Server Offline", value=st.session_state["sync_failure"])
     st.session_state["sync_failure"] = sync_fail_tgl
 
-    col_sim_tgl = st.toggle("Inject Multi-Branch Track Collision", value=st.session_state["simulate_collision"])
+    col_sim_tgl = st.toggle("Inject Section Conflict", value=st.session_state["simulate_collision"])
     st.session_state["simulate_collision"] = col_sim_tgl
 
-    siren_halt_toggle = st.toggle("🔒 Engage Safety Interlock (Halt)", value=st.session_state["siren_off_halt"])
+    siren_halt_toggle = st.toggle("Safety Interlock Hold", value=st.session_state["siren_off_halt"])
     st.session_state["siren_off_halt"] = siren_halt_toggle
 
-    delay_minutes = st.slider("Inject Freight Delay (Mins)", min_value=0, max_value=75, value=0, step=5)
+    delay_minutes = st.slider("Inject Inbound Train Delay (Mins)", min_value=0, max_value=75, value=0, step=5)
 
 # --------------------------------------------------------------------------
 # ASSEMBLE DATA & RUN OPTIMIZER PIPELINE
@@ -822,43 +702,39 @@ bundled_clusters_count = int(schedule.loc[schedule["bundle_cluster"] >= 0, "bund
 efficiency_pct = round((scheduled_tasks / total_tasks) * 100, 1)
 
 # --------------------------------------------------------------------------
-# 2. REAL-TIME DATA REFRESH DIGITAL CLOCK BANNER (SEPTEMBER 02, 2026)
+# 2. OFFICIAL REAL-TIME REFRESH CLOCK HEADER
 # --------------------------------------------------------------------------
 now_time = datetime.now()
 target_date_str = "02 September 2026"
 time_ist_str = now_time.strftime("%H:%M:%S IST")
 time_utc_str = (now_time - timedelta(hours=5, minutes=30)).strftime("%H:%M:%S UTC")
 
-badge_status_html = '<span class="badge-status-online"><span class="pulse-dot"></span> DISPATCH READY · LIVE</span>'
+badge_status_html = '<span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; padding: 4px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700;">● SYSTEM OPERATIONAL</span>'
 if st.session_state["siren_off_halt"]:
-    badge_status_html = '<span class="badge-status-hold"><span class="pulse-dot" style="background:#EF4444; box-shadow:0 0 10px #EF4444;"></span> SAFETY HOLD ACTIVE · HALTED</span>'
+    badge_status_html = '<span style="background: #FEE2E2; color: #B91C1C; border: 1px solid #FCA5A5; padding: 4px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700;">● SAFETY HOLD ACTIVE</span>'
 
-clock_banner_html = f"""<div class="master-clock-banner">
-<div style="display:flex; align-items:center; gap:16px;">
-<span style="font-size:34px;">🚆</span>
+header_html = f"""<div class="gov-portal-header">
 <div>
-<div style="font-size:20px; font-weight:900; letter-spacing:-0.02em;">
-{T['portal_title']}
+    <div style="font-size: 11.5px; font-weight: 700; color: #64748B; text-transform: uppercase;">{T['portal_title']}</div>
+    <div style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 2px 0;">{T['portal_sub']}</div>
+    <div style="font-size: 12px; color: #475569;">
+        Logged in: <b style="color: #0369A1;">{st.session_state['user_dept']}</b> ({st.session_state['user_designation']})
+    </div>
 </div>
-<div style="font-size:13px; color:#CBD5E1; margin-top:2px;">
-{T['portal_sub']} &nbsp;|&nbsp; <span class="tag-pill" style="background:rgba(255,255,255,0.18); color:#FFFFFF; border:none;">{st.session_state['user_dept']}</span> ({st.session_state['user_designation']})
-</div>
-</div>
-</div>
-<div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
-<div class="clock-time-pill">
-🕒 <b>{target_date_str}</b> &nbsp;|&nbsp; {time_ist_str} ({time_utc_str})
-</div>
-{badge_status_html}
+<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+    <div class="gov-meta-chip">
+        🕒 {target_date_str} &nbsp;|&nbsp; {time_ist_str}
+    </div>
+    {badge_status_html}
 </div>
 </div>"""
 
-st.markdown(clock_banner_html, unsafe_allow_html=True)
+st.markdown(header_html, unsafe_allow_html=True)
 
 if st.session_state["sync_failure"]:
     st.markdown(
-        '<div class="pro-alert-warning">'
-        '<b>⚠️ CRIS / COA SERVER LINK OFFLINE:</b> Activating local SQLite offline buffer and static headway safety templates.'
+        '<div class="alert-banner-warning">'
+        '<b>⚠️ CRIS / COA SERVER LINK OFFLINE:</b> Operating on local cached database with static safety headway rules.'
         '</div>', unsafe_allow_html=True
     )
 
@@ -871,13 +747,13 @@ tab_main_dispatch, tab_freight_telemetry = st.tabs([
 ])
 
 # ==========================================================================
-# TAB 1: 📋 MAIN OPERATIONAL DISPATCH (40:60 Column Split)
+# TAB 1: MASTER BLOCK TIMETABLE & DISPATCH (40:60 Column Split)
 # ==========================================================================
 with tab_main_dispatch:
     col_config_left, col_viz_right = st.columns([4, 6])
 
     # ----------------------------------------------------------------------
-    # LEFT COLUMN (40%): Input Configuration & Requisition Form
+    # LEFT COLUMN (40%): Requisition Configurator
     # ----------------------------------------------------------------------
     with col_config_left:
         active_dept = st.session_state["user_dept"]
@@ -886,17 +762,17 @@ with tab_main_dispatch:
         st.markdown(f"#### {T['config_header']}")
         
         st.markdown(f"""<div class="pro-card">
-<div class="flex items-center justify-between mb-3">
-    <h5 class="text-sm font-bold text-slate-900 m-0">
-        📝 {T['branch_label']}: <span class="text-blue-700">{active_dept}</span>
-    </h5>
-    <span class="px-2.5 py-0.5 text-xs font-bold rounded-md {b_class}">{active_dept}</span>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+    <div style="font-size: 13.5px; font-weight: 700; color: #0F172A;">
+        {T['branch_label']}: <span style="color: #0369A1;">{active_dept}</span>
+    </div>
+    <span class="tag-badge">{active_dept}</span>
 </div>
 """, unsafe_allow_html=True)
         
         if is_chief_controller:
             form_branch = st.selectbox(
-                f"{T['branch_label']} Selection:",
+                f"{T['branch_label']}:",
                 ["Engineering", "S&T", "Electrical"],
                 index=0,
                 key="form_branch_select"
@@ -942,64 +818,62 @@ with tab_main_dispatch:
                 "exclusive_block": heavy_machinery_toggle,
             }
             st.session_state["custom_requests"].append(new_entry)
-            st.success(f"Work Order {new_id} queued for {form_branch}!")
-            time.sleep(0.3)
+            st.success(f"Work order {new_id} recorded in queue.")
+            time.sleep(0.2)
             st.rerun()
 
         st.markdown("</div>", unsafe_allow_html=True)
 
-        # Operational Queue Metrics
-        st.markdown(f"##### 📊 {T['total_pool']} Breakdown")
+        # Operational Queue Breakdown
+        st.markdown(f"##### {T['total_pool']} Ledger")
         q_m1, q_m2, q_m3, q_m4 = st.columns(4)
         with q_m1:
             st.markdown(f"""<div class="stat-tile">
-<div class="text-[11px] font-bold text-slate-500 uppercase">{T['total_pool']}</div>
-<div class="text-2xl font-black text-sky-600 mt-1">{total_tasks}</div>
+<div style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase;">{T['total_pool']}</div>
+<div style="font-size: 20px; font-weight: 800; color: #0369A1; margin-top: 2px;">{total_tasks}</div>
 </div>""", unsafe_allow_html=True)
         with q_m2:
             st.markdown(f"""<div class="stat-tile">
-<div class="text-[11px] font-bold text-slate-500 uppercase">{T['scheduled_metric']}</div>
-<div class="text-2xl font-black text-emerald-600 mt-1">{scheduled_tasks} <span class="text-xs font-bold text-emerald-500">({efficiency_pct}%)</span></div>
+<div style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase;">{T['scheduled_metric']}</div>
+<div style="font-size: 20px; font-weight: 800; color: #15803D; margin-top: 2px;">{scheduled_tasks} <span style="font-size: 11px; font-weight: 600; color: #15803D;">({efficiency_pct}%)</span></div>
 </div>""", unsafe_allow_html=True)
         with q_m3:
             st.markdown(f"""<div class="stat-tile">
-<div class="text-[11px] font-bold text-slate-500 uppercase">{T['deferred_metric']}</div>
-<div class="text-2xl font-black text-rose-600 mt-1">{deferred_tasks}</div>
+<div style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase;">{T['deferred_metric']}</div>
+<div style="font-size: 20px; font-weight: 800; color: #B91C1C; margin-top: 2px;">{deferred_tasks}</div>
 </div>""", unsafe_allow_html=True)
         with q_m4:
             st.markdown(f"""<div class="stat-tile">
-<div class="text-[11px] font-bold text-slate-500 uppercase">{T['critical_metric']}</div>
-<div class="text-2xl font-black text-amber-600 mt-1">{critical_risks}</div>
+<div style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase;">{T['critical_metric']}</div>
+<div style="font-size: 20px; font-weight: 800; color: #B45309; margin-top: 2px;">{critical_risks}</div>
 </div>""", unsafe_allow_html=True)
 
-        # Explainable Risk Callout
-        st.markdown("""<div class="pro-card" style="border-left: 5px solid #0284C7; margin-top:14px;">
-<div style="font-size:12px; font-weight:800; color:#0F172A; text-transform:uppercase; letter-spacing:0.04em;">ML Risk Prioritization Matrix (Asset Aging Coefficients)</div>
-<div style="font-size:13px; color:#475569; margin-top:5px; line-height:1.45; font-weight:500;">
-USFD Rail Flaw Severity (35%) + Overdue Maintenance Days (25%) + GMT Load Density (20%) + Corridor Strategic Priority (20%)
+        # Risk Parameter Card
+        st.markdown("""<div class="pro-card" style="border-left: 4px solid #0369A1; margin-top: 12px;">
+<div style="font-size: 11.5px; font-weight: 700; color: #0F172A; text-transform: uppercase;">Safety Parameter Evaluation Matrix</div>
+<div style="font-size: 12px; color: #475569; margin-top: 4px; line-height: 1.4;">
+Ultrasonic Rail Flaw (USFD 35%) + Maintenance Overdue Days (25%) + Gross Million Tonnes (GMT 20%) + Corridor Strategic Weight (20%)
 </div>
 </div>""", unsafe_allow_html=True)
 
     # ----------------------------------------------------------------------
-    # RIGHT COLUMN (60%): Interactive Plotly Gantt & SMS Broadcast Dispatch
+    # RIGHT COLUMN (60%): Gantt Timeline & Master Dispatch
     # ----------------------------------------------------------------------
     with col_viz_right:
         st.markdown(f"#### {T['timeline_header']}")
 
-        # Live Siren Conflict Warning Alert
+        # Conflict Banner
         if has_simultaneous_collision:
             depts_str = " & ".join(colliding_departments)
-            alert_box_html = f"""<div class="pro-alert-danger">
-<h4 style="margin:0; font-size:14.5px; font-weight:800; color:#991B1B;">
-{T['siren_conflict']}
-</h4>
-<p style="margin:4px 0 0 0; font-size:13px; color:#7F1D1D; font-weight:500;">
+            alert_box_html = f"""<div class="alert-banner-danger">
+<div style="font-size: 13.5px; font-weight: 700; color: #991B1B;">{T['siren_conflict']}</div>
+<div style="font-size: 12px; color: #7F1D1D; margin-top: 2px;">
 <b>{collision_track}</b>: {depts_str} | {T['conflict_action']}
-</p>
+</div>
 </div>"""
             st.markdown(alert_box_html, unsafe_allow_html=True)
 
-        # Plotly Gantt Timeline Chart
+        # Gantt Timeline Chart
         gantt_df = schedule[schedule["is_scheduled"]].copy()
         if selected_corridor != "All Corridors (Jabalpur Division)":
             gantt_df = gantt_df[gantt_df["corridor"] == selected_corridor]
@@ -1038,11 +912,11 @@ USFD Rail Flaw Severity (35%) + Overdue Maintenance Days (25%) + GMT Load Densit
                 text="Label",
             )
             fig_gantt.update_yaxes(autorange="reversed", title="Track Section")
-            fig_gantt.update_xaxes(title=f"Horizon (00:00 to {horizon_hours:02d}:00)")
+            fig_gantt.update_xaxes(title=f"Time Horizon (00:00 to {horizon_hours:02d}:00)")
             fig_gantt.update_traces(
                 textposition="inside",
                 insidetextanchor="start",
-                marker_line_width=1.5,
+                marker_line_width=1,
                 marker_line_color="#FFFFFF"
             )
             fig_gantt.update_layout(
@@ -1051,12 +925,12 @@ USFD Rail Flaw Severity (35%) + Overdue Maintenance Days (25%) + GMT Load Densit
                 paper_bgcolor="#FFFFFF",
                 legend_title_text="Branch",
                 legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-                height=max(340, 60 + 42 * gantt_df["section_track"].nunique()),
+                height=max(330, 60 + 40 * gantt_df["section_track"].nunique()),
                 margin=dict(l=10, r=10, t=30, b=10),
             )
             st.plotly_chart(fig_gantt, use_container_width=True)
 
-        # 4. SECURE ROLE ACCESS & AUTOMATED SMS DISPATCH
+        # Dispatch & CSV Export
         st.markdown("---")
         
         user_desig = st.session_state["user_designation"]
@@ -1073,30 +947,13 @@ USFD Rail Flaw Severity (35%) + Overdue Maintenance Days (25%) + GMT Load Densit
         btn_c1, btn_c2 = st.columns([2.5, 1.5])
         with btn_c1:
             if st.session_state["siren_off_halt"]:
-                st.button("🛑 DISPATCH LOCKED (Safety Hold Active)", disabled=True, use_container_width=True)
+                st.button("DISPATCH LOCKED (Safety Hold Active)", disabled=True, use_container_width=True)
             elif not is_authorized_broadcaster:
-                st.button("🔒 BROADCAST & SMS GATEWAY (Authorized Head Clearance Required)", disabled=True, use_container_width=True)
-                st.caption("Broadcast restricted to Department Heads (Sr. DEN / Sr. DOM) & Chief Controller (CHC).")
+                st.button("AUTHORIZE & TRANSMIT (Clearance Required)", disabled=True, use_container_width=True)
+                st.caption("Authorized access: Department Heads (Sr. DEN / Sr. DOM / Sr. DSTE / Sr. DEE) & Chief Controller (CHC).")
             else:
                 if st.button(T["btn_broadcast"], type="primary", use_container_width=True):
                     st.session_state["dispatch_executed"] = True
-                    st.markdown("""
-                    <script>
-                        try {
-                            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                            const osc = audioCtx.createOscillator();
-                            const gainNode = audioCtx.createGain();
-                            osc.type = 'sine';
-                            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-                            gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
-                            osc.connect(gainNode);
-                            gainNode.connect(audioCtx.destination);
-                            osc.start();
-                            osc.stop(audioCtx.currentTime + 0.4);
-                        } catch(e) {}
-                    </script>
-                    """, unsafe_allow_html=True)
                     st.balloons()
 
         with btn_c2:
@@ -1110,39 +967,37 @@ USFD Rail Flaw Severity (35%) + Overdue Maintenance Days (25%) + GMT Load Densit
                 use_container_width=True,
             )
 
-        # High-Contrast Success Panel logging Safe Automated SMS Telemetry Push to 3 Field Branches
+        # Transmission Status Panel
         if st.session_state["dispatch_executed"] and is_authorized_broadcaster and not st.session_state["siren_off_halt"]:
-            st.markdown(f"""<div class="pro-alert-success" style="margin-top:14px;">
-<div class="flex items-center justify-between mb-2">
-    <h4 style="margin:0; font-size:15px; font-weight:800; color:#166534;">
-        {T['sms_success_title']}
-    </h4>
-    <span class="tag-pill" style="background:#DCFCE7; color:#166534; border-color:#86EFAC;">CRIS SMS TLS-1.3 SYNCED</span>
+            st.markdown(f"""<div class="alert-banner-success" style="margin-top: 12px;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+    <div style="font-size: 14px; font-weight: 800; color: #166534;">{T['sms_success_title']}</div>
+    <span class="tag-badge" style="background: #DCFCE7; color: #166534; border-color: #86EFAC;">CRIS TLS-1.3 VERIFIED</span>
 </div>
-<div style="font-size:13px; color:#14532D; line-height:1.55;">
-• <b>Order Reference:</b> <span class="tag-pill">WCR/JBP/RBP-OPT/{datetime.now().strftime('%Y%m%d-%H%M')}</span> &nbsp;|&nbsp;
-<b>Authorized By:</b> <span class="tag-pill">{user_desig}</span><br>
-• <b>CRIS Security Token:</b> <code>SEC_TOKEN_JBP2026_SMS_VERIFIED_OK</code>
+<div style="font-size: 12px; color: #14532D; line-height: 1.5;">
+• <b>Order Reference:</b> <span class="tag-badge">WCR/JBP/JRBP/{datetime.now().strftime('%Y%m%d-%H%M')}</span> &nbsp;|&nbsp;
+<b>Authorized By:</b> <span class="tag-badge">{user_desig}</span><br>
+• <b>Security Token:</b> <code>SEC_TOKEN_JBP2026_SMS_VERIFIED_OK</code>
 </div>
 
-<div class="sms-badge">
-    📱 <b>SMS GATEWAY #1 (Civil / P-Way):</b> [WCR/JBP/ENG] Track Tamping Block Approved. Window: 02:00-04:30. Auth: CHC-JBP-SMS-OK
+<div class="sms-log-item">
+    📱 <b>Civil Engineering (P-Way):</b> [WCR/JBP/ENG] Track Tamping & Rail Renewal Approved. Window: 02:00-04:30. Auth: CHC-JBP
 </div>
-<div class="sms-badge">
-    📱 <b>SMS GATEWAY #2 (S&T / Signal):</b> [WCR/JBP/S&T] Electronic Interlocking window synchronized at KM 1042. Auth: CHC-JBP-SMS-OK
+<div class="sms-log-item">
+    📱 <b>Signal & Telecom (S&T):</b> [WCR/JBP/S&T] Electronic Interlocking window synchronized at KM 1042. Auth: CHC-JBP
 </div>
-<div class="sms-badge">
-    📱 <b>SMS GATEWAY #3 (Electrical / TRD):</b> [WCR/JBP/TRD] OHE Catenary Power Block scheduled with zero section starvation. Auth: CHC-JBP-SMS-OK
+<div class="sms-log-item">
+    📱 <b>Traction Distribution (TRD):</b> [WCR/JBP/TRD] OHE Power Block scheduled with zero section starvation. Auth: CHC-JBP
 </div>
 </div>""", unsafe_allow_html=True)
 
 
 # ==========================================================================
-# TAB 2: 💰 FREIGHT FINANCIAL TELEMETRY
+# TAB 2: DIVISION FINANCIAL & PUNCTUALITY AUDIT
 # ==========================================================================
 with tab_freight_telemetry:
-    st.markdown("### 💰 Freight Financial Telemetry & Green Logistics Deck")
-    st.caption("Quantifying Demurrage Penalties Averted, Active Starvation Leakage Mitigation, and Carbon Footprint Abatement.")
+    st.markdown("### Division Financial & Punctuality Audit Ledger")
+    st.caption("Quantifying Freight Demurrage Prevention, Line Capacity Reclamation, and Environmental Savings.")
 
     # Top Financial Metrics Row
     f_k1, f_k2, f_k3, f_k4 = st.columns(4)
@@ -1157,44 +1012,44 @@ with tab_freight_telemetry:
     with f_k2:
         st.markdown(f"""<div class="fin-metric-card" style="border-top-color:#0284C7;">
 <div class="fin-metric-title">{T['capacity_card_title']}</div>
-<div class="fin-metric-value" style="color:#0284C7;">+18.4 Hours</div>
+<div class="fin-metric-value">+18.4 Hours</div>
 <div class="fin-metric-sub">Equivalent to +6 Freight Paths / Wk</div>
 </div>""", unsafe_allow_html=True)
 
     with f_k3:
         st.markdown(f"""<div class="fin-metric-card" style="border-top-color:#7C3AED;">
 <div class="fin-metric-title">{T['traction_card_title']}</div>
-<div class="fin-metric-value" style="color:#7C3AED;">₹16.5 Lakhs</div>
+<div class="fin-metric-value">₹16.5 Lakhs</div>
 <div class="fin-metric-sub">Zero Unscheduled OHE Power Cuts</div>
 </div>""", unsafe_allow_html=True)
 
     with f_k4:
         st.markdown(f"""<div class="fin-metric-card" style="border-top-color:#D97706;">
 <div class="fin-metric-title">{T['caution_card_title']}</div>
-<div class="fin-metric-value" style="color:#D97706;">-38% TSR</div>
-<div class="fin-metric-sub">Saved ₹8.2L in Diesel/Electric Idling</div>
+<div class="fin-metric-value">-38% TSR</div>
+<div class="fin-metric-sub">Saved ₹8.2L in Fuel/Traction Idling</div>
 </div>""", unsafe_allow_html=True)
 
-    st.markdown("<div style='margin-top:18px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top:14px;'></div>", unsafe_allow_html=True)
 
-    # Green Financial Logistics Report Banner
-    st.markdown(f"""<div class="green-logistics-banner">
-<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+    # Environmental & Energy Certificate Banner
+    st.markdown(f"""<div class="pro-card" style="background: #F0FDF4; border: 1px solid #BBF7D0; border-left: 4px solid #059669;">
+<div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
 <div>
-<h4 style="margin:0 0 8px 0; font-size:17px; font-weight:900; color:#065F46;">
+<div style="font-size: 14.5px; font-weight: 800; color: #065F46;">
 {T['green_banner_title']}
-</h4>
-<p style="margin:0; font-size:14px; color:#047857; line-height:1.55; font-weight:500;">
+</div>
+<p style="margin: 4px 0 0 0; font-size: 12.5px; color: #047857; line-height: 1.5;">
 {T['green_banner_desc']}
 </p>
 </div>
-<div style="background:#FFFFFF; border:1.5px solid #86EFAC; border-radius:12px; padding:10px 18px; font-weight:800; font-size:14px; color:#065F46; box-shadow:0 4px 12px rgba(16,185,129,0.15);">
-124.6 Tonnes CO₂e Abated / Mo
+<div style="background: #FFFFFF; border: 1px solid #86EFAC; border-radius: 4px; padding: 6px 14px; font-weight: 700; font-size: 12.5px; color: #065F46;">
+124.6 Tonnes CO₂e Abated / Month
 </div>
 </div>
 </div>""", unsafe_allow_html=True)
 
-    # Financial Compliance Breakdown Tables & Charts
+    # Financial Breakdown Charts & Ledger
     fin_col1, fin_col2 = st.columns(2)
 
     with fin_col1:
@@ -1212,13 +1067,13 @@ with tab_freight_telemetry:
             fin_breakdown,
             names="Cost Category",
             values="Savings (₹ in Lakhs)",
-            hole=0.5,
+            hole=0.45,
             color_discrete_sequence=["#059669", "#0284C7", "#D97706", "#7C3AED"],
         )
         fig_fin_pie.update_layout(
             template="plotly_white",
             paper_bgcolor="#FFFFFF",
-            height=300,
+            height=280,
             margin=dict(l=10, r=10, t=20, b=10),
         )
         st.plotly_chart(fig_fin_pie, use_container_width=True)
@@ -1229,9 +1084,9 @@ with tab_freight_telemetry:
             "Corridor Jurisdiction": list(CORRIDORS.keys()),
             "Throughput Gain": ["+5.8 hrs", "+6.2 hrs", "+2.8 hrs", "+3.6 hrs"],
             "Demurrage Saved": ["₹14.2 Lakhs", "₹16.8 Lakhs", "₹4.6 Lakhs", "₹7.2 Lakhs"],
-            "Green Index": ["96.2%", "94.8%", "98.1%", "95.5%"],
+            "Capacity Index": ["96.2%", "94.8%", "98.1%", "95.5%"],
         })
-        st.dataframe(starve_df, use_container_width=True, height=280)
+        st.dataframe(starve_df, use_container_width=True, height=260)
 
 
 # --------------------------------------------------------------------------
@@ -1240,33 +1095,33 @@ with tab_freight_telemetry:
 st.markdown("<br>", unsafe_allow_html=True)
 with st.expander(T["telemetry_expander"], expanded=False):
     telemetry_metadata = {
-        "solver_engine": "Google OR-Tools CP-SAT (v9.15)",
-        "spatial_bundling_engine": "GeoPandas / Shapely EPSG:32644 Projection",
+        "engine": "Google OR-Tools Mathematical Optimization (CP-SAT v9.15)",
+        "spatial_bundling": "GeoPandas / EPSG:32644 Projection",
         "solver_status": live_result.solver_status,
         "objective_score": float(live_result.objective_value),
         "planning_horizon_hours": int(horizon_hours),
         "planning_horizon_minutes": int(horizon_hours * 60),
-        "total_requests_count": int(total_tasks),
-        "scheduled_tasks_count": int(scheduled_tasks),
-        "deferred_tasks_count": int(deferred_tasks),
-        "bundled_clusters_count": int(bundled_clusters_count),
-        "critical_risk_count": int(critical_risks),
-        "safety_interlock_hold": bool(st.session_state["siren_off_halt"]),
-        "server_sync_status": "LOCAL_SQLITE_FALLBACK" if st.session_state["sync_failure"] else "ONLINE_CRIS_COA_SYNCED",
-        "active_department_session": st.session_state["user_dept"],
-        "officer_designation": st.session_state["user_designation"],
-        "passkey_verification_status": "PASSKEY_VERIFIED_JBP2026",
-        "language_mode": st.session_state["lang_choice"],
-        "target_operational_date": target_date_str,
-        "execution_timestamp_iso": datetime.now().isoformat(),
+        "total_requests": int(total_tasks),
+        "scheduled_blocks": int(scheduled_tasks),
+        "deferred_blocks": int(deferred_tasks),
+        "bundled_clusters": int(bundled_clusters_count),
+        "critical_risks": int(critical_risks),
+        "safety_interlock": bool(st.session_state["siren_off_halt"]),
+        "server_status": "LOCAL_SQLITE_FALLBACK" if st.session_state["sync_failure"] else "CRIS_COA_ONLINE",
+        "officer_session": st.session_state["user_dept"],
+        "designation": st.session_state["user_designation"],
+        "passkey_verified": "JBP2026_OK",
+        "language": st.session_state["lang_choice"],
+        "operational_date": target_date_str,
+        "timestamp_iso": datetime.now().isoformat(),
     }
     
     st.markdown(
-        f'<div style="background:#0F172A; color:#38BDF8; font-family:\'JetBrains Mono\', monospace; font-size:12.5px; padding:16px; border-radius:8px; overflow-x:auto;">'
-        f'<pre style="margin:0; color:#38BDF8;">{json.dumps(telemetry_metadata, indent=2)}</pre>'
+        f'<div style="background: #0F172A; color: #38BDF8; font-family: \'JetBrains Mono\', monospace; font-size: 12px; padding: 14px; border-radius: 6px; overflow-x: auto;">'
+        f'<pre style="margin: 0; color: #38BDF8;">{json.dumps(telemetry_metadata, indent=2)}</pre>'
         f'</div>',
         unsafe_allow_html=True
     )
 
 st.markdown("---")
-st.caption("🚆 Indian Railways · West Central Railway (WCR) Jabalpur Division · Centre for Railway Information Systems (CRIS)")
+st.caption("🚆 Government of India · Ministry of Railways · West Central Railway (WCR) Jabalpur Division · Centre for Railway Information Systems (CRIS)")
