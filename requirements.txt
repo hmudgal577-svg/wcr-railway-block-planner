@@ -1,0 +1,8 @@
+streamlit>=1.35
+pandas>=2.0
+numpy>=1.26
+scikit-learn>=1.4
+ortools>=9.9
+geopandas>=0.14
+shapely>=2.0
+plotly>=5.20
