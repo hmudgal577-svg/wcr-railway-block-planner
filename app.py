@@ -7,14 +7,12 @@ Enterprise Production Portal for Section Controllers & Chief Dispatchers
 """
 
 import io
-import json
 import time
 from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 import streamlit as st
 
 from backend.data_gen import generate_requests, CORRIDORS, BRANCH_ACTIONS
@@ -50,7 +48,7 @@ RISK_COLORS = {
 
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
     html, body, [class*="css"] {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -75,11 +73,6 @@ st.markdown("""
         padding: 18px 22px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
         margin-bottom: 16px;
-        transition: box-shadow 0.2s ease, border-color 0.2s ease;
-    }
-    .pro-card:hover {
-        border-color: #CBD5E1;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     }
 
     /* Official Ministry Header */
@@ -224,16 +217,16 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
 
-    /* Telemetry Code Box */
-    .telemetry-box {
-        background: #0F172A;
-        color: #38BDF8;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 12.5px;
-        padding: 16px;
-        border-radius: 8px;
-        line-height: 1.5;
-        overflow-x: auto;
+    /* Tag Pill Badges */
+    .tag-pill {
+        display: inline-block;
+        background: #F1F5F9;
+        color: #334155;
+        border: 1px solid #CBD5E1;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 12px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -287,7 +280,6 @@ if "siren_off_halt" not in st.session_state:
 
 
 def reset_entire_system():
-    """Reset system to clean state."""
     st.session_state["seed"] = 42
     st.session_state["custom_requests"] = []
     st.session_state["simulate_collision"] = False
@@ -308,7 +300,7 @@ with st.sidebar:
         st.rerun()
 
     st.markdown("---")
-    st.markdown("#### 👤 Controller Identity & RBAC")
+    st.markdown("#### 👤 Controller Identity & Clearance")
     security_role = st.selectbox(
         "Access Authorization",
         [
@@ -348,7 +340,7 @@ with st.sidebar:
     delay_minutes = st.slider(
         "Inject Inbound Freight/Express Delay (Mins)",
         min_value=0, max_value=75, value=0, step=5,
-        help="Pushes section occupancy to test AI dynamic rescheduling."
+        help="Pushes section occupancy to test dynamic rescheduling."
     )
 
 # --------------------------------------------------------------------------
@@ -370,7 +362,7 @@ MINISTRY OF RAILWAYS · WEST CENTRAL RAILWAY
 <span class="gov-badge">JABALPUR DIVISION</span>
 </div>
 <p style="margin:4px 0 0 0; color:#CBD5E1; font-size:13px;">
-Automated Integrated Block Planning & AI Optimization System (IR-RBP v2.4)
+Automated Integrated Block Planning & Decision Support System (IR-RBP)
 </p>
 </div>
 </div>
@@ -382,7 +374,6 @@ Automated Integrated Block Planning & AI Optimization System (IR-RBP v2.4)
 
 st.markdown(header_html, unsafe_allow_html=True)
 
-# System Fault-Tolerance Warning Banner if sync failed
 if st.session_state["sync_failure"]:
     st.markdown(
         '<div class="pro-alert-warning">'
@@ -543,21 +534,16 @@ for track_name, grp in grouped_raw:
         collision_corridor = grp["corridor"].iloc[0]
         break
 
-# Collision alert card if detected
 if has_simultaneous_collision:
     depts_str = " & ".join(colliding_departments)
     alert_box_html = f"""<div class="pro-alert-danger">
-<div style="display:flex; justify-content:space-between; align-items:center;">
-<div>
 <h4 style="margin:0; font-size:15px; font-weight:700; color:#991B1B;">
 ⚠️ Track Possession Conflict Detected — Automated Resolution Enforced
 </h4>
 <p style="margin:4px 0 0 0; font-size:13px; color:#7F1D1D;">
-Simultaneous requests detected on <b>{collision_track}</b> from <b>{depts_str}</b> branches.
-The <b>OR-Tools CP-SAT + GeoPandas Bundling</b> engine has synchronized these tasks into a single joint block window, preventing line deadlock.
+Simultaneous block requests were filed on <b>{collision_track}</b> by <b>{depts_str}</b> branches.
+The <b>OR-Tools Optimization Engine</b> has automatically aligned these tasks into a single synchronized possession window, avoiding line deadlock and saving caution order overhead.
 </p>
-</div>
-</div>
 </div>"""
     st.markdown(alert_box_html, unsafe_allow_html=True)
 
@@ -595,7 +581,7 @@ with k3:
 
 with k4:
     st.markdown(f"""<div class="metric-card">
-<div class="metric-label">Critical ML Backlog (≥75)</div>
+<div class="metric-label">Critical Backlog (≥75)</div>
 <div class="metric-value" style="color:#EA580C;">{critical_risks}</div>
 <div class="metric-footer">USFD / High GMT Priority</div>
 </div>""", unsafe_allow_html=True)
@@ -616,7 +602,7 @@ tab_solution, tab_timeline, tab_map, tab_analytics, tab_table, tab_whatif = st.t
     "🎯 Operational Solution & Impact",
     "📊 Gantt Block Timeline",
     "🗺️ GIS Corridor Map",
-    "🧠 Explainable AI Prioritization",
+    "🧠 Explainable Prioritization",
     "📋 Dispatcher Timetable & Orders",
     "⚡ Delay Resilience Simulation",
 ])
@@ -636,7 +622,7 @@ with tab_solution:
 🔴 The Operational Problem (Legacy Siloed Planning)
 </h4>
 <ul style="margin:0; padding-left:18px; color:#7F1D1D; font-size:13.5px; line-height:1.6;">
-<li><b>Independent Department Requisitions:</b> Engineering, S&T, and Electrical raise separate block demands for the same physical corridor without synchronization.</li>
+<li><b>Independent Department Demands:</b> Engineering, S&T, and Electrical raise separate block demands for the same physical corridor without synchronization.</li>
 <li><b>Repeated Section Closures:</b> A section is shut down at 02:00 for track tamping, reopened at 04:00, and shut down again at 07:00 for OHE maintenance, causing double freight and express train cancellations.</li>
 <li><b>Caution Order Inefficiencies:</b> Speed restrictions (30 km/h) remain active longer, compounding line-haul delays.</li>
 <li><b>Safety Hazard:</b> Unsynchronized work increases staff casualty risk and potential collision incidents.</li>
@@ -649,9 +635,9 @@ with tab_solution:
 🟢 The AI Integrated Solution (Google OR-Tools + GeoPandas)
 </h4>
 <ul style="margin:0; padding-left:18px; color:#14532D; font-size:13.5px; line-height:1.6;">
-<li><b>Automated Spatial Bundling:</b> GeoPandas identifies maintenance jobs across different branches located within 500m on the same corridor.</li>
-<li><b>Unified Possession Windows:</b> CP-SAT solver aligns Engineering, S&T, and OHE into a single concurrent block window with zero additional track downtime.</li>
-<li><b>Scientific Risk Prioritization:</b> High-risk rail flaws (USFD) and high-tonnage freight corridors are cleared first.</li>
+<li><b>Automated Spatial Bundling:</b> Identifies maintenance jobs across different branches located within 500m on the same corridor.</li>
+<li><b>Unified Possession Windows:</b> Aligns Engineering, S&T, and OHE into a single concurrent block window with zero additional track downtime.</li>
+<li><b>Scientific Prioritization:</b> High-risk rail flaws (USFD) and high-tonnage freight corridors are cleared first.</li>
 <li><b>Safety Interlocks:</b> Heavy TRT/BCM machinery tasks are automatically isolated into exclusive blocks for labor protection.</li>
 </ul>
 </div>""", unsafe_allow_html=True)
@@ -809,23 +795,25 @@ with tab_map:
 
 
 # ==========================================================================
-# TAB 4: EXPLAINABLE AI PRIORITIZATION
+# TAB 4: EXPLAINABLE PRIORITIZATION
 # ==========================================================================
 with tab_analytics:
-    st.markdown("### 🧠 Explainable Machine Learning Prioritization Matrix")
-    st.caption("Transparent Random Forest scoring breakdown based on Indian Railways Safety Parameters.")
+    st.markdown("### 🧠 Explainable Multi-Factor Prioritization Matrix")
+    st.caption("Transparent scoring breakdown based on Indian Railways Safety & Traffic Parameters.")
 
     st.markdown("""<div class="pro-card">
-<h4 style="margin:0 0 6px 0; font-size:14px; font-weight:700; color:#0F172A;">
+<h4 style="margin:0 0 8px 0; font-size:14px; font-weight:700; color:#0F172A;">
 📐 Scientific Risk Formulation & Weightage Formula
 </h4>
-<p style="margin:0; font-size:13px; color:#475569; line-height:1.5;">
-The AI engine evaluates every maintenance demand through a multi-factor regression model:
-<br>
-<code style="background:#F1F5F9; color:#0F172A; padding:2px 8px; border-radius:4px; font-weight:600;">
-Priority Index = 0.35 × (USFD Rail Defect Score) + 0.25 × (Overdue Days) + 0.20 × (Traffic Density GMT) + 0.20 × (Corridor Strategic Weight)
-</code>
+<p style="margin:0 0 10px 0; font-size:13px; color:#475569; line-height:1.5;">
+The system evaluates every maintenance demand through four weighted railway safety parameters:
 </p>
+<div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+<span class="tag-pill" style="border-left:3px solid #0284C7;">35% Ultrasonic Rail Flaw (USFD) Severity</span>
+<span class="tag-pill" style="border-left:3px solid #EA580C;">25% Overdue Maintenance Days</span>
+<span class="tag-pill" style="border-left:3px solid #16A34A;">20% Section Traffic Load (GMT)</span>
+<span class="tag-pill" style="border-left:3px solid #7C3AED;">20% Strategic Corridor Criticality</span>
+</div>
 </div>""", unsafe_allow_html=True)
 
     an1, an2 = st.columns(2)
@@ -847,7 +835,7 @@ Priority Index = 0.35 × (USFD Rail Defect Score) + 0.25 × (Overdue Days) + 0.2
             orientation="h",
             color="Weight",
             color_continuous_scale="Blues",
-            title="RandomForest Feature Contribution Weights",
+            title="Relative Feature Importance Weights",
         )
         fig_feat.update_layout(
             template="plotly_white",
@@ -923,7 +911,7 @@ with tab_table:
 
     def bundle_repr(r):
         if r.get("is_heavy_machinery", False) or r.get("exclusive_block", False):
-            return "🛡️ EXCLUSIVE"
+            return "EXCLUSIVE"
         if r["bundle_cluster"] >= 0:
             return f"Cluster #{r['bundle_cluster']}"
         return "Individual"
@@ -982,11 +970,15 @@ with tab_table:
 
     if st.session_state["dispatch_executed"] and is_level_3 and not st.session_state["siren_off_halt"]:
         st.markdown(f"""<div class="pro-alert-success">
-<b>✅ OFFICIAL ROLLING BLOCK PROGRAM TRANSMITTED TO WCR NETWORK</b><br>
-• <b>Order Reference:</b> <code>WCR/JBP/RBP-OPT/{datetime.now().strftime('%Y%m%d-%H%M')}</code><br>
-• <b>Authorization Token:</b> <code>RBAC_LVL3_CHIEF_CONTROLLER_JBP_OK</code><br>
-• <b>Timestamp:</b> {datetime.now().strftime('%Y-%m-%d %H:%M:%S IST')}<br>
-• <b>Recipients:</b> Section Controllers (ET, KTE, STA, SGRL), Traction Power Controllers (TPC), Signal Control.
+<h4 style="margin:0 0 6px 0; color:#166534; font-size:15px; font-weight:700;">
+✅ Official Rolling Block Program Transmitted to WCR Network
+</h4>
+<div style="font-size:13px; color:#14532D; line-height:1.6;">
+<b>Order Reference:</b> <span class="tag-pill">WCR/JBP/RBP-OPT/{datetime.now().strftime('%Y%m%d-%H%M')}</span> &nbsp;|&nbsp;
+<b>Clearance:</b> <span class="tag-pill">Chief Controller (JBP) Authorized</span><br>
+<b>Transmission Time:</b> {datetime.now().strftime('%Y-%m-%d %H:%M:%S IST')}<br>
+<b>Recipients:</b> Section Controllers (ET, KTE, STA, SGRL), Traction Power Controllers (TPC), Signal Control.
+</div>
 </div>""", unsafe_allow_html=True)
 
 
@@ -1028,25 +1020,35 @@ with tab_whatif:
             )
 
 # --------------------------------------------------------------------------
-# CRIS TELEMETRY AUDIT LOG
+# SYSTEM OPERATIONS HEALTH & AUDIT
 # --------------------------------------------------------------------------
 st.markdown("<br>", unsafe_allow_html=True)
-with st.expander("🖥️ CRIS Core Engine Operational Telemetry Log", expanded=False):
-    telemetry_data = {
-        "status": live_result.solver_status,
-        "solver_engine": "Google OR-Tools CP-SAT (v9.15)",
-        "spatial_bundling_engine": "GeoPandas / Shapely (EPSG Projection)",
-        "planning_horizon_mins": int(horizon_hours * 60),
-        "scheduled_work_orders": int(scheduled_tasks),
-        "deferred_work_orders": int(deferred_tasks),
-        "system_interlock_hold": bool(st.session_state["siren_off_halt"]),
-        "audit_token": f"CRIS-WCR-JBP-{int(time.time()) % 10000:04d}",
-        "coa_api_link": "FALLBACK_LOCAL_CACHE" if st.session_state["sync_failure"] else "ONLINE_TLS1_3",
-    }
-    st.markdown(
-        f'<div class="telemetry-box"><pre style="margin:0;">{json.dumps(telemetry_data, indent=2)}</pre></div>',
-        unsafe_allow_html=True
-    )
+with st.expander("ℹ️ Operations Audit & System Health Status", expanded=False):
+    s1, s2, s3, s4 = st.columns(4)
+    with s1:
+        st.markdown("""<div class="metric-card">
+<div class="metric-label">Optimization Engine</div>
+<div style="font-size:16px; font-weight:700; color:#0284C7; margin-top:4px;">Google OR-Tools</div>
+<div class="metric-footer">CP-SAT Solver (Optimal)</div>
+</div>""", unsafe_allow_html=True)
+    with s2:
+        st.markdown("""<div class="metric-card">
+<div class="metric-label">Spatial Clustering</div>
+<div style="font-size:16px; font-weight:700; color:#16A34A; margin-top:4px;">GeoPandas / EPSG</div>
+<div class="metric-footer">500m Geographic Radius</div>
+</div>""", unsafe_allow_html=True)
+    with s3:
+        st.markdown("""<div class="metric-card">
+<div class="metric-label">Clearance Authority</div>
+<div style="font-size:16px; font-weight:700; color:#7C3AED; margin-top:4px;">DRM / Chief Controller</div>
+<div class="metric-footer">Level 3 Authorized</div>
+</div>""", unsafe_allow_html=True)
+    with s4:
+        st.markdown(f"""<div class="metric-card">
+<div class="metric-label">COA API Gateway</div>
+<div style="font-size:16px; font-weight:700; color:{'#D97706' if st.session_state['sync_failure'] else '#16A34A'}; margin-top:4px;">{'Offline (Cached)' if st.session_state['sync_failure'] else 'Online Synced'}</div>
+<div class="metric-footer">SSL / TLS 1.3 Certified</div>
+</div>""", unsafe_allow_html=True)
 
 st.markdown("---")
-st.caption("🚆 Indian Railways · West Central Railway (WCR) Jabalpur Division · Centre for Railway Information Systems (CRIS)")
+st.caption("🚆 Indian Railways · West Central Railway (WCR) Jabalpur Division · Joint Block Management System")
