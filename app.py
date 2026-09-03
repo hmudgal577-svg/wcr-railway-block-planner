@@ -601,15 +601,16 @@ DEFAULT_DEMO_REQS = [
 ]
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SESSION STATE INITIALIZATION (DEFAULT: AUTHENTICATED CHC WITH DEMO DATA)
+# SESSION STATE INITIALIZATION (DEFAULT: LOGIN SCREEN REQUIRED)
 # ─────────────────────────────────────────────────────────────────────────────
 _defaults = {
-    "is_logged_in": True,
-    "user_dept": "Chief Controller / DRM",
-    "user_designation": "Chief Controller (CHC / Central Control)",
+    "is_logged_in": False,
+    "user_dept": "Engineering",
+    "user_designation": "Sr. Divisional Engineer (Sr. DEN / Track)",
     "lang_choice": "English",
     "seed": 42,
     "custom_requests": DEFAULT_DEMO_REQS,
+
     "simulate_collision": False,
     "sync_failure": False,
     "dispatch_executed": False,
@@ -717,23 +718,33 @@ if not st.session_state["is_logged_in"]:
         desig_map = {
             "Engineering": [
                 "Sr. Divisional Engineer (Sr. DEN / Track)",
+                "Sr. Divisional Engineer (Sr. DEN / Bridge)",
                 "Assistant Divisional Engineer (ADEN / Track)",
+                "Assistant Divisional Engineer (ADEN / Works)",
+                "Junior Engineer (JE / P-Way)",
                 "Senior Section Engineer (SSE / P-Way)",
             ],
             "S&T": [
                 "Sr. Divisional Signal & Telecom Engineer (Sr. DSTE)",
                 "Divisional Signal & Telecom Engineer (DSTE)",
+                "Assistant Signal & Telecom Engineer (ASTE)",
+                "Junior Engineer (JE / Signal)",
                 "Senior Section Engineer (SSE / Signal)",
             ],
             "Electrical": [
                 "Sr. Divisional Electrical Engineer (Sr. DEE / TRD)",
+                "Sr. Divisional Electrical Engineer (Sr. DEE / General)",
                 "Divisional Electrical Engineer (DEE / TRD)",
+                "Assistant Divisional Electrical Engineer (ADEE)",
                 "Senior Section Engineer (SSE / OHE)",
             ],
             "Chief Controller / DRM": [
                 "Chief Controller (CHC / Central Control)",
                 "Dy. Chief Controller (Dy. CHC)",
+                "Section Controller (SC / Train Control)",
                 "Sr. Divisional Operations Manager (Sr. DOM)",
+                "Divisional Operations Manager (DOM)",
+                "Divisional Safety Officer (DSO)",
                 "Divisional Railway Manager (DRM Jabalpur)",
             ],
         }
@@ -749,15 +760,35 @@ if not st.session_state["is_logged_in"]:
                 else:
                     st.error("❌  Invalid security passkey. Default: JBP2026")
         with bb:
-            if st.button("👁  Guest / Demo Access", use_container_width=True):
+            if st.button("👁  Guest / Read-Only Entry", use_container_width=True):
                 st.session_state.update(
                     is_logged_in=True,
                     user_dept="Chief Controller / DRM",
-                    user_designation="Chief Controller (CHC / Central Control)",
+                    user_designation="Divisional Safety Officer (DSO)",
                 )
                 st.rerun()
 
+        st.markdown('<div style="margin-top:10px;"></div>', unsafe_allow_html=True)
+
+        if st.button(
+            "🎓  LOAD TEACHER DEMO — DRM Full Access + 8 Pre-Filled Real Block Orders",
+            use_container_width=True,
+        ):
+            st.session_state.update(
+                is_logged_in=True,
+                user_dept="Chief Controller / DRM",
+                user_designation="Chief Controller (CHC / Central Control)",
+                custom_requests=DEFAULT_DEMO_REQS,
+                simulate_collision=False,
+                sync_failure=False,
+                dispatch_executed=False,
+                siren_off_halt=False,
+            )
+            st.balloons()
+            st.rerun()
+
     st.stop()
+
 
 # =============================================================================
 #  AUTHENTICATED OPERATIONS COMMAND CENTER
