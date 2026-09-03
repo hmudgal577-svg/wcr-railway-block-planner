@@ -66,7 +66,7 @@ RISK_COLORS = {
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
-# PRODUCTION-GRADE GLOBAL CSS
+# PRODUCTION-GRADE GLOBAL CSS  (v4 — visible train BG, all text fixed)
 # ─────────────────────────────────────────────────────────────────────────────
 st.markdown(f"""
 <style>
@@ -84,19 +84,13 @@ html, body, [class*="css"] {{
     -moz-osx-font-smoothing: grayscale;
 }}
 
-/* Full-bleed background: user's train photo */
+/* ── Full-bleed train photo. Overlay: ~15% dark only for text readability ── */
 .stApp {{
     background-image:
-        linear-gradient(
-            175deg,
-            rgba(4, 10, 28, 0.93) 0%,
-            rgba(8, 22, 56, 0.88) 40%,
-            rgba(4, 18, 42, 0.91) 75%,
-            rgba(4, 10, 28, 0.96) 100%
-        ),
+        linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.15)),
         {BG_CSS_VAL};
     background-size: cover;
-    background-position: center 35%;
+    background-position: center center;
     background-attachment: fixed;
     background-repeat: no-repeat;
     color: #F1F5F9;
@@ -111,28 +105,53 @@ html, body, [class*="css"] {{
 }}
 
 /* ══════════════════════════════════════════════════════
-   2.  SIDEBAR — premium dark glass
+   2.  SIDEBAR — all text forced visible
 ══════════════════════════════════════════════════════ */
 section[data-testid="stSidebar"] {{
-    background: rgba(4, 10, 28, 0.96) !important;
+    background: rgba(4, 10, 28, 0.97) !important;
     border-right: 1px solid rgba(148, 163, 184, 0.10) !important;
     backdrop-filter: blur(24px);
 }}
-section[data-testid="stSidebar"] .stMarkdown p,
-section[data-testid="stSidebar"] .stMarkdown h1,
-section[data-testid="stSidebar"] .stMarkdown h2,
-section[data-testid="stSidebar"] .stMarkdown h3 {{
+/* All markdown text in sidebar */
+section[data-testid="stSidebar"] p,
+section[data-testid="stSidebar"] span,
+section[data-testid="stSidebar"] div,
+section[data-testid="stSidebar"] li {{
     color: #E2E8F0 !important;
 }}
-section[data-testid="stSidebar"] label {{
-    color: #94A3B8 !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3,
+section[data-testid="stSidebar"] h4 {{
+    color: #FFFFFF !important;
 }}
-section[data-testid="stSidebar"] .stCaption {{
-    color: #475569 !important;
+/* Sidebar FIELD HEADING labels (selectbox, slider etc.) */
+section[data-testid="stSidebar"] .stSelectbox > label p,
+section[data-testid="stSidebar"] .stSlider > label p,
+section[data-testid="stSidebar"] .stTextInput > label p,
+section[data-testid="stSidebar"] .stRadio > label p {{
+    color: #94A3B8 !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+}}
+/* Sidebar RADIO / CHECKBOX / TOGGLE OPTION text → bright white */
+section[data-testid="stSidebar"] .stRadio [data-testid="stMarkdownContainer"] p,
+section[data-testid="stSidebar"] .stRadio > div label,
+section[data-testid="stSidebar"] .stCheckbox [data-testid="stMarkdownContainer"] p,
+section[data-testid="stSidebar"] .stCheckbox > label p,
+section[data-testid="stSidebar"] .stToggle [data-testid="stMarkdownContainer"] p,
+section[data-testid="stSidebar"] .stToggle > label p {{
+    color: #FFFFFF !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}}
+section[data-testid="stSidebar"] .stCaption p {{
+    color: #64748B !important;
+    font-size: 11px !important;
 }}
 hr {{ border-color: rgba(148,163,184,0.12) !important; }}
 
@@ -229,145 +248,238 @@ hr {{ border-color: rgba(148,163,184,0.12) !important; }}
 }}
 
 /* ══════════════════════════════════════════════════════
-   5.  FORM CONTROLS
+   5.  FORM CONTROLS — ALL TEXT VISIBLE
 ══════════════════════════════════════════════════════ */
+/* ── SELECT BOXES ── */
 div[data-baseweb="select"] > div {{
-    background: rgba(8,20,50,0.85) !important;
-    border: 1px solid rgba(148,163,184,0.18) !important;
+    background: rgba(5,12,36,0.92) !important;
+    border: 1px solid rgba(148,163,184,0.25) !important;
     border-radius: 8px !important;
     color: #E2E8F0 !important;
     backdrop-filter: blur(8px);
     transition: border-color 0.15s ease;
 }}
 div[data-baseweb="select"] > div:focus-within {{
-    border-color: rgba(59,130,246,0.50) !important;
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.12) !important;
+    border-color: rgba(59,130,246,0.60) !important;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important;
 }}
 div[data-baseweb="select"] * {{
     color: #E2E8F0 !important;
-    background: rgba(8,20,50,0.98) !important;
+    background: rgba(5,12,36,0.98) !important;
 }}
 div[data-baseweb="select"] li:hover {{
-    background: rgba(29,78,216,0.30) !important;
+    background: rgba(29,78,216,0.35) !important;
 }}
-.stTextInput input {{
-    background: rgba(8,20,50,0.85) !important;
+div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {{
     color: #E2E8F0 !important;
-    border: 1px solid rgba(148,163,184,0.18) !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+}}
+
+/* ── TEXT INPUT ── */
+.stTextInput input {{
+    background: rgba(5,12,36,0.92) !important;
+    color: #FFFFFF !important;
+    border: 1px solid rgba(148,163,184,0.25) !important;
     border-radius: 8px !important;
     font-weight: 500 !important;
+    font-size: 14px !important;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
     backdrop-filter: blur(8px);
 }}
 .stTextInput input:focus {{
-    border-color: rgba(59,130,246,0.50) !important;
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.12) !important;
+    border-color: rgba(59,130,246,0.60) !important;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important;
     outline: none !important;
 }}
+.stTextInput input::placeholder {{ color: #475569 !important; }}
+
+/* ── SLIDER ── */
 .stSlider [data-testid="stSlider"] > div > div {{
-    background: rgba(29,78,216,0.50) !important;
+    background: rgba(29,78,216,0.55) !important;
 }}
-.stSlider label,
-.stSelectbox label,
-.stTextInput label,
-.stMultiSelect label,
-.stCheckbox label,
-.stToggle label,
-.stRadio label {{
-    color: #94A3B8 !important;
+
+/* ── FIELD HEADING LABELS (selectbox / slider / textinput / multiselect) ── */
+.stSelectbox > label p,
+.stSlider > label p,
+.stTextInput > label p,
+.stMultiSelect > label p,
+.stNumberInput > label p {{
+    color: #CBD5E1 !important;
     font-weight: 700 !important;
     font-size: 12px !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.04em !important;
+    letter-spacing: 0.05em !important;
 }}
-.stCheckbox span[data-testid="stMarkdownContainer"] p,
-.stRadio span[data-testid="stMarkdownContainer"] p {{
-    color: #CBD5E1 !important;
-    font-weight: 500 !important;
-    font-size: 13.5px !important;
+
+/* ══════════════════════════════════════════════════════
+   6.  RADIO BUTTONS — DEEP SELECTOR FIX
+   Streamlit nests label text 3–4 levels deep in spans.
+   We target every layer to ensure text is WHITE.
+══════════════════════════════════════════════════════ */
+/* Radio group heading */
+.stRadio > label p {{
+    color: #94A3B8 !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}}
+/* Each radio option text — ALL descendant text nodes */
+.stRadio > div > div > label p,
+.stRadio > div > div > label span,
+.stRadio [role="radiogroup"] label p,
+.stRadio [role="radiogroup"] label span,
+.stRadio [data-testid="stMarkdownContainer"] p,
+.stRadio [data-testid="stMarkdownContainer"] span {{
+    color: #FFFFFF !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
     text-transform: none !important;
     letter-spacing: 0 !important;
 }}
+
+/* ══════════════════════════════════════════════════════
+   7.  CHECKBOXES & TOGGLES
+══════════════════════════════════════════════════════ */
+.stCheckbox > label p,
+.stCheckbox > label span,
+.stCheckbox [data-testid="stMarkdownContainer"] p {{
+    color: #FFFFFF !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}}
+.stToggle > label p,
+.stToggle > label span,
+.stToggle [data-testid="stMarkdownContainer"] p {{
+    color: #FFFFFF !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}}
+
+/* ── Expander ── */
 div[data-testid="stExpander"] {{
-    background: rgba(8,20,50,0.75) !important;
-    border: 1px solid rgba(148,163,184,0.12) !important;
+    background: rgba(5,12,36,0.80) !important;
+    border: 1px solid rgba(148,163,184,0.14) !important;
     border-radius: 10px !important;
     backdrop-filter: blur(14px) !important;
     margin-top: 16px !important;
 }}
-div[data-testid="stExpander"] summary {{
-    color: #94A3B8 !important;
+div[data-testid="stExpander"] summary p,
+div[data-testid="stExpander"] summary span {{
+    color: #CBD5E1 !important;
     font-weight: 700 !important;
 }}
 
+/* ── Metric container ── */
+[data-testid="metric-container"] {{
+    background: rgba(5,12,36,0.65) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 10px !important;
+    padding: 12px 14px !important;
+    backdrop-filter: blur(12px) !important;
+}}
+[data-testid="metric-container"] label p {{
+    color: #64748B !important;
+    font-size: 11px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    font-weight: 700 !important;
+}}
+[data-testid="metric-container"] [data-testid="stMetricValue"],
+[data-testid="metric-container"] [data-testid="stMetricValue"] div {{
+    color: #F1F5F9 !important;
+    font-size: 22px !important;
+    font-weight: 900 !important;
+}}
+
+/* Plotly charts transparent bg */
+.js-plotly-plot .plotly {{ background: transparent !important; }}
+
 /* ══════════════════════════════════════════════════════
-   6.  COMPONENT TOKENS (reusable classes)
+   6.  COMPONENT TOKENS — premium glassmorphism
+   All backgrounds use low-opacity rgba so train shows through
 ══════════════════════════════════════════════════════ */
 
-/* — Glass card — */
+/* ── LOGIN SHELL — full premium glass ── */
+.ty-login-shell {{
+    max-width: 900px;
+    margin: 24px auto;
+    background: rgba(5, 10, 25, 0.52);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-top: 3px solid #F59E0B;
+    border-radius: 18px;
+    padding: 38px 48px 36px;
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.06) inset,
+        0 32px 80px rgba(0,0,0,0.40),
+        0 8px 24px rgba(0,0,0,0.25);
+}}
+
+/* ── GENERIC GLASS CARD ── */
 .ty-card {{
-    background: rgba(8, 20, 50, 0.72);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(5, 10, 25, 0.48);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.14);
     border-radius: 14px;
     padding: 20px 22px;
     margin-bottom: 14px;
     box-shadow:
-        0 1px 0 rgba(255,255,255,0.04) inset,
-        0 8px 32px rgba(0,0,0,0.28);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        0 1px 0 rgba(255,255,255,0.06) inset,
+        0 8px 28px rgba(0,0,0,0.22);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }}
 .ty-card:hover {{
-    border-color: rgba(255,255,255,0.13);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+    border-color: rgba(255,255,255,0.22);
+    box-shadow: 0 12px 36px rgba(0,0,0,0.30);
+    transform: translateY(-1px);
 }}
 
-/* — Header banner — */
+/* ── TOP HEADER BANNER ── */
 .ty-header {{
-    background: rgba(4, 10, 28, 0.82);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255,255,255,0.09);
-    border-radius: 16px;
-    padding: 18px 28px;
+    background: rgba(5, 10, 25, 0.55);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-bottom: 2px solid rgba(245,158,11,0.40);
+    border-radius: 14px;
+    padding: 16px 26px;
     margin-bottom: 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 14px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.28);
 }}
 
-/* — Login container — */
-.ty-login-shell {{
-    max-width: 880px;
-    margin: 32px auto;
-    background: rgba(4, 10, 28, 0.90);
-    backdrop-filter: blur(28px);
-    -webkit-backdrop-filter: blur(28px);
-    border: 1px solid rgba(255,255,255,0.09);
-    border-top: 4px solid #F59E0B;
-    border-radius: 16px;
-    padding: 36px 44px;
-    box-shadow: 0 24px 72px rgba(0,0,0,0.55);
-}}
-
-/* — Stat tiles — */
+/* ── STAT TILES ── */
 .ty-stat {{
-    background: rgba(8,20,50,0.75);
+    background: rgba(5, 10, 25, 0.50);
     backdrop-filter: blur(14px);
-    border: 1px solid rgba(255,255,255,0.08);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.12);
     border-radius: 10px;
     padding: 14px 16px;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, transform 0.2s ease;
 }}
-.ty-stat:hover {{ border-color: rgba(255,255,255,0.16); }}
+.ty-stat:hover {{
+    border-color: rgba(255,255,255,0.22);
+    transform: translateY(-2px);
+}}
 .ty-stat-label {{
     font-size: 10.5px;
     font-weight: 700;
-    color: #64748B;
+    color: rgba(148,163,184,0.85);
     text-transform: uppercase;
     letter-spacing: 0.07em;
 }}
@@ -531,31 +643,11 @@ div[data-testid="stExpander"] summary {{
     margin-bottom: 10px;
 }}
 
-/* Plotly charts transparent bg */
-.js-plotly-plot .plotly {{ background: transparent !important; }}
-
-/* Streamlit metric */
-[data-testid="metric-container"] {{
-    background: rgba(8,20,50,0.60) !important;
-    border: 1px solid rgba(255,255,255,0.07) !important;
-    border-radius: 10px !important;
-    padding: 12px 14px !important;
-    backdrop-filter: blur(12px) !important;
-}}
-[data-testid="metric-container"] label {{
-    color: #64748B !important;
-    font-size: 11px !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
-    font-weight: 700 !important;
-}}
-[data-testid="metric-container"] [data-testid="stMetricValue"] {{
-    color: #F1F5F9 !important;
-    font-size: 22px !important;
-    font-weight: 900 !important;
-}}
+/* Plotly charts transparent bg — DUPLICATE GUARD (already set above) */
+.js-plotly-plot .plotly, .plotly-graph-div {{ background: transparent !important; }}
 </style>
 """, unsafe_allow_html=True)
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DUAL-LANGUAGE TERMINOLOGY MATRIX
@@ -758,22 +850,39 @@ if not st.session_state["is_logged_in"]:
         desig_map = {
             "Engineering": [
                 "Sr. Divisional Engineer (Sr. DEN / Track)",
-                "Assistant Divisional Engineer (ADEN)",
+                "Sr. Divisional Engineer (Sr. DEN / Bridge)",
+                "Sr. Divisional Engineer (Sr. DEN / Construction)",
+                "Assistant Divisional Engineer (ADEN / Track)",
+                "Assistant Divisional Engineer (ADEN / Works)",
+                "Junior Engineer (JE / P-Way)",
                 "Senior Section Engineer (SSE / P-Way)",
             ],
             "S&T": [
                 "Sr. Divisional Signal & Telecom Engineer (Sr. DSTE)",
                 "Divisional Signal & Telecom Engineer (DSTE)",
+                "Assistant Signal & Telecom Engineer (ASTE)",
+                "Junior Engineer (JE / Signal)",
+                "Junior Engineer (JE / Telecom)",
                 "Senior Section Engineer (SSE / Signal)",
+                "Senior Section Engineer (SSE / Telecom)",
             ],
             "Electrical": [
                 "Sr. Divisional Electrical Engineer (Sr. DEE / TRD)",
+                "Sr. Divisional Electrical Engineer (Sr. DEE / General)",
                 "Divisional Electrical Engineer (DEE / TRD)",
+                "Divisional Electrical Engineer (DEE / General)",
+                "Assistant Divisional Electrical Engineer (ADEE)",
+                "Junior Engineer (JE / TRD)",
                 "Senior Section Engineer (SSE / OHE)",
             ],
             "Chief Controller / DRM": [
                 "Chief Controller (CHC / Central Control)",
+                "Dy. Chief Controller (Dy. CHC)",
+                "Section Controller (SC / Train Control)",
                 "Sr. Divisional Operations Manager (Sr. DOM)",
+                "Divisional Operations Manager (DOM)",
+                "Sr. Divisional Commercial Manager (Sr. DCM)",
+                "Divisional Safety Officer (DSO)",
                 "Divisional Railway Manager (DRM Jabalpur)",
             ],
         }
@@ -782,22 +891,133 @@ if not st.session_state["is_logged_in"]:
 
         ba, bb = st.columns(2)
         with ba:
-            if st.button("Access Workstation", type="primary", use_container_width=True):
+            if st.button("🔐  Access Workstation", type="primary", use_container_width=True):
                 if pk.strip() == "JBP2026":
                     st.session_state.update(is_logged_in=True, user_dept=sel_dept, user_designation=desig)
                     st.rerun()
                 else:
-                    st.error("Invalid passkey. Default: JBP2026")
+                    st.error("❌  Invalid passkey. Default: JBP2026")
         with bb:
-            if st.button("Guest / Demo Entry", use_container_width=True):
+            if st.button("👁  Guest / Read-Only Entry", use_container_width=True):
                 st.session_state.update(
                     is_logged_in=True,
                     user_dept="Chief Controller / DRM",
-                    user_designation="Chief Controller (CHC / Central Control)",
+                    user_designation="Divisional Safety Officer (DSO)",
                 )
                 st.rerun()
 
+        st.markdown('<div style="margin-top:10px;"></div>', unsafe_allow_html=True)
+
+        # ── TEACHER DEMO BUTTON ───────────────────────────────────────────────
+        if st.button(
+            "🎓  LOAD TEACHER DEMO — DRM Full Access + Pre-Filled Block Data",
+            use_container_width=True,
+        ):
+            # Pre-load 8 realistic block requisitions across all 4 corridors
+            demo_reqs = [
+                # Engineering — Heavy tamping on JBP-KTE freight route
+                dict(request_id="DEMO-ENG-001", department="Engineering",
+                     action="Deep Screening & Track Renewal (TSM-V)",
+                     corridor="Jabalpur (JBP) - Katni (KTE) Heavy Freight Route",
+                     section_track="Jabalpur (JBP) - Katni (KTE) Heavy Freight Route :: DN-Main",
+                     asset_id="AST-DEMO-ENG-001",
+                     latitude=23.51, longitude=80.22, overdue_days=112,
+                     last_inspection_score=91.0, traffic_density=148,
+                     corridor_priority=1.5, estimated_duration_mins=120,
+                     is_heavy_machinery=True, exclusive_block=True),
+
+                # S&T — Interlocking overhaul JBP-ET route
+                dict(request_id="DEMO-SNT-001", department="S&T",
+                     action="Electronic Interlocking Commissioning (EI-IBS)",
+                     corridor="Jabalpur (JBP) - Itarsi (ET) Main Trunk Route",
+                     section_track="Jabalpur (JBP) - Itarsi (ET) Main Trunk Route :: UP-Main",
+                     asset_id="AST-DEMO-SNT-001",
+                     latitude=23.18, longitude=79.94, overdue_days=88,
+                     last_inspection_score=85.0, traffic_density=132,
+                     corridor_priority=1.4, estimated_duration_mins=90,
+                     is_heavy_machinery=False, exclusive_block=False),
+
+                # Electrical — OHE maintenance Bina route
+                dict(request_id="DEMO-ELC-001", department="Electrical",
+                     action="OHE Tension Balancer & Jumper Replacement",
+                     corridor="Katni (KTE) - Bina (BINA) Coal Corridor",
+                     section_track="Katni (KTE) - Bina (BINA) Coal Corridor :: UP-Main",
+                     asset_id="AST-DEMO-ELC-001",
+                     latitude=23.82, longitude=80.40, overdue_days=65,
+                     last_inspection_score=79.0, traffic_density=120,
+                     corridor_priority=1.3, estimated_duration_mins=75,
+                     is_heavy_machinery=False, exclusive_block=False),
+
+                # Engineering — USFD testing on Gondia route
+                dict(request_id="DEMO-ENG-002", department="Engineering",
+                     action="Ultrasonic Rail Flaw Detection (USFD Testing)",
+                     corridor="Jabalpur (JBP) - Gondia (G) Passenger Corridor",
+                     section_track="Jabalpur (JBP) - Gondia (G) Passenger Corridor :: DN-Main",
+                     asset_id="AST-DEMO-ENG-002",
+                     latitude=23.32, longitude=80.55, overdue_days=95,
+                     last_inspection_score=87.0, traffic_density=108,
+                     corridor_priority=1.2, estimated_duration_mins=60,
+                     is_heavy_machinery=False, exclusive_block=False),
+
+                # S&T — Axle counter renewal KTE-BINA
+                dict(request_id="DEMO-SNT-002", department="S&T",
+                     action="Digital Axle Counter (DAC) System Renewal",
+                     corridor="Katni (KTE) - Bina (BINA) Coal Corridor",
+                     section_track="Katni (KTE) - Bina (BINA) Coal Corridor :: DN-Main",
+                     asset_id="AST-DEMO-SNT-002",
+                     latitude=23.85, longitude=80.42, overdue_days=72,
+                     last_inspection_score=83.0, traffic_density=118,
+                     corridor_priority=1.3, estimated_duration_mins=60,
+                     is_heavy_machinery=False, exclusive_block=False),
+
+                # Electrical — Substation shutdown JBP-ET
+                dict(request_id="DEMO-ELC-002", department="Electrical",
+                     action="25kV Traction Sub-Station Shutdown & Breaker Maintenance",
+                     corridor="Jabalpur (JBP) - Itarsi (ET) Main Trunk Route",
+                     section_track="Jabalpur (JBP) - Itarsi (ET) Main Trunk Route :: DN-Main",
+                     asset_id="AST-DEMO-ELC-002",
+                     latitude=23.15, longitude=79.90, overdue_days=58,
+                     last_inspection_score=76.0, traffic_density=130,
+                     corridor_priority=1.4, estimated_duration_mins=90,
+                     is_heavy_machinery=False, exclusive_block=True),
+
+                # Engineering — BCM machine JBP-KTE
+                dict(request_id="DEMO-ENG-003", department="Engineering",
+                     action="Ballast Cleaning Machine (BCM) Operation — 3km Run",
+                     corridor="Jabalpur (JBP) - Katni (KTE) Heavy Freight Route",
+                     section_track="Jabalpur (JBP) - Katni (KTE) Heavy Freight Route :: UP-Main",
+                     asset_id="AST-DEMO-ENG-003",
+                     latitude=23.49, longitude=80.18, overdue_days=130,
+                     last_inspection_score=93.0, traffic_density=145,
+                     corridor_priority=1.5, estimated_duration_mins=180,
+                     is_heavy_machinery=True, exclusive_block=True),
+
+                # S&T — Signal gantry painting JBP-G
+                dict(request_id="DEMO-SNT-003", department="S&T",
+                     action="Colour Light Signal (CLS) Maintenance & Lamp Renewal",
+                     corridor="Jabalpur (JBP) - Gondia (G) Passenger Corridor",
+                     section_track="Jabalpur (JBP) - Gondia (G) Passenger Corridor :: UP-Main",
+                     asset_id="AST-DEMO-SNT-003",
+                     latitude=23.30, longitude=80.52, overdue_days=45,
+                     last_inspection_score=71.0, traffic_density=102,
+                     corridor_priority=1.2, estimated_duration_mins=45,
+                     is_heavy_machinery=False, exclusive_block=False),
+            ]
+            st.session_state.update(
+                is_logged_in=True,
+                user_dept="Chief Controller / DRM",
+                user_designation="Chief Controller (CHC / Central Control)",
+                custom_requests=demo_reqs,
+                simulate_collision=False,
+                sync_failure=False,
+                dispatch_executed=False,
+                siren_off_halt=False,
+            )
+            st.balloons()
+            st.rerun()
+
     st.stop()
+
 
 
 # =============================================================================
@@ -1142,8 +1362,9 @@ with tab1:
 
         user_desig = st.session_state["user_designation"]
         is_auth = any(r in user_desig for r in [
-            "Department Head","Chief Controller","DRM",
-            "Sr. DEN","Sr. DOM","Sr. DSTE","Sr. DEE",
+            "Chief Controller", "Dy. Chief Controller", "Section Controller",
+            "DRM", "Sr. DEN", "Sr. DOM", "Sr. DSTE", "Sr. DEE",
+            "Divisional Railway Manager", "Divisional Safety Officer",
         ])
 
         bc1, bc2 = st.columns([2.5, 1.5])
