@@ -5,19 +5,6 @@ TRACKYUKTI — Smarter Planning. Efficient Solutions.
 WEST CENTRAL RAILWAY (WCR) — JABALPUR DIVISION
 Joint Rolling Block Planning & Corridor Operations Portal (IR-JRBP System)
 Production-Grade Portal — Ministry of Railways, Government of India
-
-Upgraded Architecture:
-- Complete Existing Project Functionality Preserved
-- Multi-Module Command Center Navigation (Sidebar Router)
-- Module 1: Command Dashboard (Executive Overview)
-- Module 2: Work Orders & Department Requisition (Preserved & Enhanced)
-- Module 3: Master Block Timetable & Gantt Timeline (Preserved & Enhanced)
-- Module 4: Smart Block Optimizer & Bundling Engine (Full/Partial/Exclusive/Comparison)
-- Module 5: Priority Intelligence & Explainable Scoring (0-100 5-Factor Model)
-- Module 6: Passenger & Freight Impact Analysis (Simulated Rakes & Windows)
-- Module 7: Financial Impact Audit & Demurrage Model (Avoided Cost Formula)
-- Module 8: What-If Simulation Lab (Dynamic Delays & Stress Scenarios)
-- Module 9: Chief Controller Approval & Department Execution Workflow
 """
 
 import base64
@@ -39,7 +26,7 @@ from backend.risk_model import CriticalityScorer
 from backend.geo_cluster import find_bundling_clusters
 from backend.optimizer import run_block_optimizer
 
-# New Advanced Intelligence Engines
+# Advanced Intelligence Engines
 from backend.priority_engine import compute_priority_intelligence
 from backend.overlap_engine import (
     detect_task_overlaps,
@@ -146,6 +133,37 @@ html, body, [class*="css"] {{
 .main .block-container h5,
 .main .block-container h6 {{
     color: #FFFFFF;
+}}
+
+/* ── Tabs Navigation: High Contrast Railway Command Deck ── */
+.stTabs [data-baseweb="tab-list"] {{
+    background: rgba(6, 12, 30, 0.94) !important;
+    border-radius: 10px !important;
+    padding: 6px 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    gap: 6px !important;
+    margin-bottom: 18px !important;
+    overflow-x: auto !important;
+}}
+.stTabs [data-baseweb="tab"] {{
+    background: transparent !important;
+    border-radius: 7px !important;
+    padding: 9px 16px !important;
+    color: #CBD5E1 !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    border: none !important;
+    transition: all 0.15s ease !important;
+    white-space: nowrap !important;
+}}
+.stTabs [data-baseweb="tab"]:hover {{
+    color: #FFFFFF !important;
+    background: rgba(30, 58, 138, 0.45) !important;
+}}
+.stTabs [aria-selected="true"] {{
+    background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.40) !important;
 }}
 
 /* ── Component Cards: Rich Opaque Glass so text is 100% crisp ── */
@@ -498,23 +516,106 @@ def run_pipeline(df, horizon_hours, setup_buffer, delayed_corridor=None, delay_m
     return result, bundled, scorer
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SESSION STATE INITIALIZATION
+# DEFAULT DEMO REQUISITIONS (RICH MULTI-CORRIDOR WORK ORDERS)
+# ─────────────────────────────────────────────────────────────────────────────
+DEFAULT_DEMO_REQS = [
+    dict(request_id="DEMO-ENG-001", department="Engineering",
+         action="Continuous Welded Rail (CWR) De-Stressing",
+         corridor="Jabalpur (JBP) - Katni (KTE) Heavy Freight Route",
+         section_track="Jabalpur (JBP) - Katni (KTE) Heavy Freight Route :: DN-Main",
+         asset_id="AST-DEMO-ENG-001",
+         latitude=23.51, longitude=80.22, overdue_days=112,
+         last_inspection_score=91.0, traffic_density=148,
+         corridor_priority=1.5, estimated_duration_mins=120,
+         is_heavy_machinery=True, exclusive_block=True),
+
+    dict(request_id="DEMO-SNT-001", department="S&T",
+         action="Electronic Interlocking (EI) Overhaul",
+         corridor="Jabalpur (JBP) - Itarsi (ET) Trunk Line",
+         section_track="Jabalpur (JBP) - Itarsi (ET) Trunk Line :: UP-Main",
+         asset_id="AST-DEMO-SNT-001",
+         latitude=23.18, longitude=79.94, overdue_days=88,
+         last_inspection_score=85.0, traffic_density=132,
+         corridor_priority=1.4, estimated_duration_mins=90,
+         is_heavy_machinery=False, exclusive_block=False),
+
+    dict(request_id="DEMO-ELC-001", department="Electrical",
+         action="OHE Catenary Contact Wire Tensioning",
+         corridor="Katni (KTE) - Singrauli Coal Logistics Line",
+         section_track="Katni (KTE) - Singrauli Coal Logistics Line :: Coal-Line-1",
+         asset_id="AST-DEMO-ELC-001",
+         latitude=23.82, longitude=80.40, overdue_days=65,
+         last_inspection_score=79.0, traffic_density=120,
+         corridor_priority=1.3, estimated_duration_mins=75,
+         is_heavy_machinery=False, exclusive_block=False),
+
+    dict(request_id="DEMO-ENG-002", department="Engineering",
+         action="Ultrasonic Flaw Detection (USFD) Rail Testing",
+         corridor="Satna (STA) - Rewa (REWA) Branch Corridor",
+         section_track="Satna (STA) - Rewa (REWA) Branch Corridor :: Single-Line",
+         asset_id="AST-DEMO-ENG-002",
+         latitude=23.32, longitude=80.55, overdue_days=95,
+         last_inspection_score=87.0, traffic_density=108,
+         corridor_priority=1.2, estimated_duration_mins=60,
+         is_heavy_machinery=False, exclusive_block=False),
+
+    dict(request_id="DEMO-SNT-002", department="S&T",
+         action="Digital Axle Counter (DAC) Sensor Calibration",
+         corridor="Katni (KTE) - Singrauli Coal Logistics Line",
+         section_track="Katni (KTE) - Singrauli Coal Logistics Line :: Coal-Line-2",
+         asset_id="AST-DEMO-SNT-002",
+         latitude=23.85, longitude=80.42, overdue_days=72,
+         last_inspection_score=83.0, traffic_density=118,
+         corridor_priority=1.3, estimated_duration_mins=60,
+         is_heavy_machinery=False, exclusive_block=False),
+
+    dict(request_id="DEMO-ELC-002", department="Electrical",
+         action="Traction Power Feeder Isolator Maintenance",
+         corridor="Jabalpur (JBP) - Itarsi (ET) Trunk Line",
+         section_track="Jabalpur (JBP) - Itarsi (ET) Trunk Line :: DN-Main",
+         asset_id="AST-DEMO-ELC-002",
+         latitude=23.15, longitude=79.90, overdue_days=58,
+         last_inspection_score=76.0, traffic_density=130,
+         corridor_priority=1.4, estimated_duration_mins=90,
+         is_heavy_machinery=False, exclusive_block=True),
+
+    dict(request_id="DEMO-ENG-003", department="Engineering",
+         action="Track Tamping & Deep Screening",
+         corridor="Jabalpur (JBP) - Katni (KTE) Heavy Freight Route",
+         section_track="Jabalpur (JBP) - Katni (KTE) Heavy Freight Route :: UP-Main",
+         asset_id="AST-DEMO-ENG-003",
+         latitude=23.49, longitude=80.18, overdue_days=130,
+         last_inspection_score=93.0, traffic_density=145,
+         corridor_priority=1.5, estimated_duration_mins=180,
+         is_heavy_machinery=True, exclusive_block=True),
+
+    dict(request_id="DEMO-SNT-003", department="S&T",
+         action="Point Machine Motor Overhauling",
+         corridor="Satna (STA) - Rewa (REWA) Branch Corridor",
+         section_track="Satna (STA) - Rewa (REWA) Branch Corridor :: Single-Line",
+         asset_id="AST-DEMO-SNT-003",
+         latitude=23.30, longitude=80.52, overdue_days=45,
+         last_inspection_score=71.0, traffic_density=102,
+         corridor_priority=1.2, estimated_duration_mins=45,
+         is_heavy_machinery=False, exclusive_block=False),
+]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SESSION STATE INITIALIZATION (DEFAULT: AUTHENTICATED CHC WITH DEMO DATA)
 # ─────────────────────────────────────────────────────────────────────────────
 _defaults = {
-    "is_logged_in": False,
-    "user_dept": "Engineering",
-    "user_designation": "Sr. Divisional Engineer (Sr. DEN / Track)",
+    "is_logged_in": True,
+    "user_dept": "Chief Controller / DRM",
+    "user_designation": "Chief Controller (CHC / Central Control)",
     "lang_choice": "English",
-    "current_module": "🧭 Command Dashboard",
     "seed": 42,
-    "custom_requests": [],
+    "custom_requests": DEFAULT_DEMO_REQS,
     "simulate_collision": False,
     "sync_failure": False,
     "dispatch_executed": False,
     "siren_off_halt": False,
     "cost_factor": 1200,
-    # Approval & Execution Workflow State
-    "workflow_status": "AWAITING_APPROVAL",  # AWAITING_APPROVAL, APPROVED_DISPATCHED, IN_EXECUTION, AWAITING_FINAL_CLOSURE, COMPLETED_AND_CLOSED
+    "workflow_status": "AWAITING_APPROVAL",
     "dept_work_status": {
         "Engineering": "SCHEDULED",
         "S&T":         "SCHEDULED",
@@ -533,12 +634,13 @@ for k, v in _defaults.items():
         st.session_state[k] = v
 
 def reset_all():
-    for k in ["seed", "custom_requests", "simulate_collision", "sync_failure", "dispatch_executed", "siren_off_halt", "workflow_status"]:
+    for k in ["seed", "simulate_collision", "sync_failure", "dispatch_executed", "siren_off_halt", "workflow_status"]:
         st.session_state[k] = _defaults[k]
+    st.session_state["custom_requests"] = DEFAULT_DEMO_REQS.copy()
     st.session_state["dept_work_status"] = _defaults["dept_work_status"].copy()
 
 # =============================================================================
-#  LOGIN PORTAL
+#  LOGIN PORTAL (ACCESSIBLE VIA LOGOUT BUTTON)
 # =============================================================================
 if not st.session_state["is_logged_in"]:
     logo_html = (
@@ -590,7 +692,7 @@ if not st.session_state["is_logged_in"]:
             "Signal & Telecom (S&T)",
             "Electrical (TRD / OHE Maintenance)",
             "Chief Controller (CHC) / Operating Control",
-        ], index=0)
+        ], index=3)
 
         dept_map = {
             "Engineering (Civil / Track / P-Way)":       "Engineering",
@@ -615,39 +717,23 @@ if not st.session_state["is_logged_in"]:
         desig_map = {
             "Engineering": [
                 "Sr. Divisional Engineer (Sr. DEN / Track)",
-                "Sr. Divisional Engineer (Sr. DEN / Bridge)",
-                "Sr. Divisional Engineer (Sr. DEN / Construction)",
                 "Assistant Divisional Engineer (ADEN / Track)",
-                "Assistant Divisional Engineer (ADEN / Works)",
-                "Junior Engineer (JE / P-Way)",
                 "Senior Section Engineer (SSE / P-Way)",
             ],
             "S&T": [
                 "Sr. Divisional Signal & Telecom Engineer (Sr. DSTE)",
                 "Divisional Signal & Telecom Engineer (DSTE)",
-                "Assistant Signal & Telecom Engineer (ASTE)",
-                "Junior Engineer (JE / Signal)",
-                "Junior Engineer (JE / Telecom)",
                 "Senior Section Engineer (SSE / Signal)",
-                "Senior Section Engineer (SSE / Telecom)",
             ],
             "Electrical": [
                 "Sr. Divisional Electrical Engineer (Sr. DEE / TRD)",
-                "Sr. Divisional Electrical Engineer (Sr. DEE / General)",
                 "Divisional Electrical Engineer (DEE / TRD)",
-                "Divisional Electrical Engineer (DEE / General)",
-                "Assistant Divisional Electrical Engineer (ADEE)",
-                "Junior Engineer (JE / TRD)",
                 "Senior Section Engineer (SSE / OHE)",
             ],
             "Chief Controller / DRM": [
                 "Chief Controller (CHC / Central Control)",
                 "Dy. Chief Controller (Dy. CHC)",
-                "Section Controller (SC / Train Control)",
                 "Sr. Divisional Operations Manager (Sr. DOM)",
-                "Divisional Operations Manager (DOM)",
-                "Sr. Divisional Commercial Manager (Sr. DCM)",
-                "Divisional Safety Officer (DSO)",
                 "Divisional Railway Manager (DRM Jabalpur)",
             ],
         }
@@ -663,114 +749,13 @@ if not st.session_state["is_logged_in"]:
                 else:
                     st.error("❌  Invalid security passkey. Default: JBP2026")
         with bb:
-            if st.button("👁  Guest / Read-Only Entry", use_container_width=True):
+            if st.button("👁  Guest / Demo Access", use_container_width=True):
                 st.session_state.update(
                     is_logged_in=True,
                     user_dept="Chief Controller / DRM",
-                    user_designation="Divisional Safety Officer (DSO)",
+                    user_designation="Chief Controller (CHC / Central Control)",
                 )
                 st.rerun()
-
-        st.markdown('<div style="margin-top:10px;"></div>', unsafe_allow_html=True)
-
-        # ── TEACHER DEMO QUICK-LOAD BUTTON ────────────────────────────────────
-        if st.button(
-            "🎓  LOAD TEACHER DEMO — DRM Full Access + 8 Pre-Filled Real Block Orders",
-            use_container_width=True,
-        ):
-            demo_reqs = [
-                dict(request_id="DEMO-ENG-001", department="Engineering",
-                     action="Continuous Welded Rail (CWR) De-Stressing",
-                     corridor="Jabalpur (JBP) - Katni (KTE) Heavy Freight Route",
-                     section_track="Jabalpur (JBP) - Katni (KTE) Heavy Freight Route :: DN-Main",
-                     asset_id="AST-DEMO-ENG-001",
-                     latitude=23.51, longitude=80.22, overdue_days=112,
-                     last_inspection_score=91.0, traffic_density=148,
-                     corridor_priority=1.5, estimated_duration_mins=120,
-                     is_heavy_machinery=True, exclusive_block=True),
-
-                dict(request_id="DEMO-SNT-001", department="S&T",
-                     action="Electronic Interlocking (EI) Overhaul",
-                     corridor="Jabalpur (JBP) - Itarsi (ET) Trunk Line",
-                     section_track="Jabalpur (JBP) - Itarsi (ET) Trunk Line :: UP-Main",
-                     asset_id="AST-DEMO-SNT-001",
-                     latitude=23.18, longitude=79.94, overdue_days=88,
-                     last_inspection_score=85.0, traffic_density=132,
-                     corridor_priority=1.4, estimated_duration_mins=90,
-                     is_heavy_machinery=False, exclusive_block=False),
-
-                dict(request_id="DEMO-ELC-001", department="Electrical",
-                     action="OHE Catenary Contact Wire Tensioning",
-                     corridor="Katni (KTE) - Singrauli Coal Logistics Line",
-                     section_track="Katni (KTE) - Singrauli Coal Logistics Line :: Coal-Line-1",
-                     asset_id="AST-DEMO-ELC-001",
-                     latitude=23.82, longitude=80.40, overdue_days=65,
-                     last_inspection_score=79.0, traffic_density=120,
-                     corridor_priority=1.3, estimated_duration_mins=75,
-                     is_heavy_machinery=False, exclusive_block=False),
-
-                dict(request_id="DEMO-ENG-002", department="Engineering",
-                     action="Ultrasonic Flaw Detection (USFD) Rail Testing",
-                     corridor="Satna (STA) - Rewa (REWA) Branch Corridor",
-                     section_track="Satna (STA) - Rewa (REWA) Branch Corridor :: Single-Line",
-                     asset_id="AST-DEMO-ENG-002",
-                     latitude=23.32, longitude=80.55, overdue_days=95,
-                     last_inspection_score=87.0, traffic_density=108,
-                     corridor_priority=1.2, estimated_duration_mins=60,
-                     is_heavy_machinery=False, exclusive_block=False),
-
-                dict(request_id="DEMO-SNT-002", department="S&T",
-                     action="Digital Axle Counter (DAC) Sensor Calibration",
-                     corridor="Katni (KTE) - Singrauli Coal Logistics Line",
-                     section_track="Katni (KTE) - Singrauli Coal Logistics Line :: Coal-Line-2",
-                     asset_id="AST-DEMO-SNT-002",
-                     latitude=23.85, longitude=80.42, overdue_days=72,
-                     last_inspection_score=83.0, traffic_density=118,
-                     corridor_priority=1.3, estimated_duration_mins=60,
-                     is_heavy_machinery=False, exclusive_block=False),
-
-                dict(request_id="DEMO-ELC-002", department="Electrical",
-                     action="Traction Power Feeder Isolator Maintenance",
-                     corridor="Jabalpur (JBP) - Itarsi (ET) Trunk Line",
-                     section_track="Jabalpur (JBP) - Itarsi (ET) Trunk Line :: DN-Main",
-                     asset_id="AST-DEMO-ELC-002",
-                     latitude=23.15, longitude=79.90, overdue_days=58,
-                     last_inspection_score=76.0, traffic_density=130,
-                     corridor_priority=1.4, estimated_duration_mins=90,
-                     is_heavy_machinery=False, exclusive_block=True),
-
-                dict(request_id="DEMO-ENG-003", department="Engineering",
-                     action="Track Tamping & Deep Screening",
-                     corridor="Jabalpur (JBP) - Katni (KTE) Heavy Freight Route",
-                     section_track="Jabalpur (JBP) - Katni (KTE) Heavy Freight Route :: UP-Main",
-                     asset_id="AST-DEMO-ENG-003",
-                     latitude=23.49, longitude=80.18, overdue_days=130,
-                     last_inspection_score=93.0, traffic_density=145,
-                     corridor_priority=1.5, estimated_duration_mins=180,
-                     is_heavy_machinery=True, exclusive_block=True),
-
-                dict(request_id="DEMO-SNT-003", department="S&T",
-                     action="Point Machine Motor Overhauling",
-                     corridor="Satna (STA) - Rewa (REWA) Branch Corridor",
-                     section_track="Satna (STA) - Rewa (REWA) Branch Corridor :: Single-Line",
-                     asset_id="AST-DEMO-SNT-003",
-                     latitude=23.30, longitude=80.52, overdue_days=45,
-                     last_inspection_score=71.0, traffic_density=102,
-                     corridor_priority=1.2, estimated_duration_mins=45,
-                     is_heavy_machinery=False, exclusive_block=False),
-            ]
-            st.session_state.update(
-                is_logged_in=True,
-                user_dept="Chief Controller / DRM",
-                user_designation="Chief Controller (CHC / Central Control)",
-                custom_requests=demo_reqs,
-                simulate_collision=False,
-                sync_failure=False,
-                dispatch_executed=False,
-                siren_off_halt=False,
-            )
-            st.balloons()
-            st.rerun()
 
     st.stop()
 
@@ -778,7 +763,7 @@ if not st.session_state["is_logged_in"]:
 #  AUTHENTICATED OPERATIONS COMMAND CENTER
 # =============================================================================
 
-# ── Sidebar Router & Operational Jurisdiction ────────────────────────────────
+# ── Sidebar Operational Jurisdiction ─────────────────────────────────────────
 with st.sidebar:
     if LOGO_B64:
         st.markdown(
@@ -814,31 +799,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    # Multi-Module Command Router
-    st.markdown('<div class="ty-section-heading" style="margin-top:10px;">Operations Modules</div>', unsafe_allow_html=True)
-
-    MODULES = [
-        "🧭 Command Dashboard",
-        "📝 Work Orders & Requisitions",
-        "📊 Master Block Timetable",
-        "⚡ Smart Block Optimizer",
-        "🎯 Priority Intelligence",
-        "🚆 Passenger & Freight Impact",
-        "💰 Financial Impact Audit",
-        "🧪 What-If Simulation Lab",
-        "🛡️ Approval & Execution Workflow",
-    ]
-
-    curr_idx = MODULES.index(st.session_state["current_module"]) if st.session_state["current_module"] in MODULES else 0
-    selected_module = st.radio(
-        "Navigation",
-        MODULES,
-        index=curr_idx,
-        label_visibility="collapsed",
-    )
-    st.session_state["current_module"] = selected_module
-
-    st.markdown('<hr style="border-color:rgba(148,163,184,0.15);margin:14px 0;">', unsafe_allow_html=True)
+    st.markdown('<hr style="border-color:rgba(148,163,184,0.15);margin:10px 0;">', unsafe_allow_html=True)
     st.markdown("#### 📍 Corridor Jurisdiction")
     sel_corr = st.selectbox(
         "Filter Corridor",
@@ -849,7 +810,7 @@ with st.sidebar:
     horizon_hours = st.slider("Horizon Window (Hours)", 6, 24, 12, step=1)
     setup_buffer  = st.slider("Handover Safety Buffer (Mins)", 5, 45, 15, step=5)
 
-    st.markdown('<hr style="border-color:rgba(148,163,184,0.15);margin:14px 0;">', unsafe_allow_html=True)
+    st.markdown('<hr style="border-color:rgba(148,163,184,0.15);margin:10px 0;">', unsafe_allow_html=True)
     co1, co2 = st.columns(2)
     with co1:
         if st.button("🚪 Logout", use_container_width=True):
@@ -864,7 +825,6 @@ with st.sidebar:
 # ─────────────────────────────────────────────────────────────────────────────
 base_df = get_cached_requests(seed=st.session_state["seed"])
 
-# Inject simulated collision if triggered
 if st.session_state["simulate_collision"]:
     coll_corr  = "Jabalpur (JBP) - Katni (KTE) Heavy Freight Route"
     coll_track = f"{coll_corr} :: DN-Main"
@@ -995,14 +955,28 @@ if has_conflict:
         unsafe_allow_html=True,
     )
 
+# ─────────────────────────────────────────────────────────────────────────────
+# 9-MODULE WORKSPACE TABBING MATRIX (NO SINGLE-PAGE CLUTTER)
+# ─────────────────────────────────────────────────────────────────────────────
+tab_dash, tab_opt, tab_time, tab_prio, tab_impact, tab_fin, tab_sim, tab_wf, tab_orders = st.tabs([
+    "🧭 Command Dashboard",
+    "⚡ Smart Block Optimizer",
+    "📊 Master Timetable",
+    "🎯 Priority Intelligence",
+    "🚆 Passenger & Freight",
+    "💰 Financial Audit",
+    "🧪 What-If Simulation",
+    "🛡️ Approval Workflow",
+    "📝 Work Orders",
+])
 
 # =============================================================================
-#  MODULE 1: COMMAND DASHBOARD (EXECUTIVE OVERVIEW)
+#  TAB 1: COMMAND DASHBOARD (EXECUTIVE OVERVIEW)
 # =============================================================================
-if selected_module == "🧭 Command Dashboard":
+with tab_dash:
     st.markdown('<div class="ty-section-heading">Operational Command Dashboard — High-Level Overview</div>', unsafe_allow_html=True)
 
-    # 1. Primary Metrics Row
+    # Primary Metrics Row
     m1, m2, m3, m4, m5, m6 = st.columns(6)
     with m1:
         st.markdown(f"""
@@ -1057,7 +1031,7 @@ if selected_module == "🧭 Command Dashboard":
         </div>
         """, unsafe_allow_html=True)
 
-    # 2. Recommended Block Window Card
+    # Recommended Block Window Card
     st.markdown("""
     <div class="ty-card" style="border-left:4px solid #10B981;margin-top:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
@@ -1080,9 +1054,8 @@ if selected_module == "🧭 Command Dashboard":
     </div>
     """, unsafe_allow_html=True)
 
-    # 3. Operations Status Grid & Recent Activity
+    # Operations Status Grid & Recent Activity
     cd1, cd2 = st.columns([1.2, 1])
-
     with cd1:
         st.markdown('<div class="ty-section-heading">Corridor Operational Health Status</div>', unsafe_allow_html=True)
         for cname, cmeta in CORRIDORS.items():
@@ -1126,239 +1099,10 @@ if selected_module == "🧭 Command Dashboard":
             """, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Quick Jump Navigation Bar
-    st.markdown('<div class="ty-divider"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="ty-section-heading">Quick Actions & Deep Dives</div>', unsafe_allow_html=True)
-    q1, q2, q3, q4 = st.columns(4)
-    with q1:
-        if st.button("⚡ Open Smart Optimizer", use_container_width=True):
-            st.session_state["current_module"] = "⚡ Smart Block Optimizer"
-            st.rerun()
-    with q2:
-        if st.button("📊 View Timetable Gantt", use_container_width=True):
-            st.session_state["current_module"] = "📊 Master Block Timetable"
-            st.rerun()
-    with q3:
-        if st.button("🎯 Inspect Priority Scoring", use_container_width=True):
-            st.session_state["current_module"] = "🎯 Priority Intelligence"
-            st.rerun()
-    with q4:
-        if st.button("🛡️ Chief Controller Workflow", use_container_width=True):
-            st.session_state["current_module"] = "🛡️ Approval & Execution Workflow"
-            st.rerun()
-
-
 # =============================================================================
-#  MODULE 2: WORK ORDERS & DEPARTMENT REQUISITIONS (PRESERVED)
+#  TAB 2: SMART BLOCK OPTIMIZER & TASK BUNDLING ENGINE
 # =============================================================================
-elif selected_module == "📝 Work Orders & Requisitions":
-    st.markdown('<div class="ty-section-heading">Departmental Block Requisition & Work Order Queue</div>', unsafe_allow_html=True)
-
-    wo_col1, wo_col2 = st.columns([1, 1.4])
-
-    with wo_col1:
-        st.markdown(f"""
-        <div class="ty-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <div style="font-size:14px;font-weight:800;color:#FFFFFF;">
-              {T['config_header']}
-            </div>
-            <span class="ty-badge">{st.session_state['user_dept']}</span>
-          </div>
-        """, unsafe_allow_html=True)
-
-        is_chc = (st.session_state["user_dept"] == "Chief Controller / DRM")
-        form_branch = (
-            st.selectbox(f"{T['branch_label']}:", ["Engineering", "S&T", "Electrical"], key="wo_fb")
-            if is_chc else st.session_state["user_dept"]
-        )
-
-        c1, c2 = st.columns(2)
-        with c1:
-            corridor_input = st.selectbox(T["corridor_label"], list(CORRIDORS.keys()), index=1, key="wo_ci")
-        with c2:
-            track_input = st.selectbox(T["track_label"], CORRIDORS[corridor_input]["tracks"], index=0, key="wo_ti")
-
-        action_input   = st.selectbox(T["action_label"], BRANCH_ACTIONS[form_branch], key="wo_ai")
-        duration_input = st.slider(T["duration_label"], 30, 240, 90, step=15, key="wo_di")
-        heavy_toggle   = st.checkbox(T["heavy_label"], value=False, key="wo_ht")
-
-        if st.button(T["btn_push"], type="primary", use_container_width=True):
-            nid  = f"WCR-REQ-{1050 + len(st.session_state['custom_requests'])}"
-            meta = CORRIDORS[corridor_input]
-            new_entry = dict(
-                request_id=nid,
-                department=form_branch,
-                action=action_input,
-                corridor=corridor_input,
-                section_track=f"{corridor_input} :: {track_input}",
-                asset_id=f"AST-{form_branch[:3].upper()}-9901",
-                latitude=meta["lat"] + np.random.uniform(-0.01, 0.01),
-                longitude=meta["lon"] + np.random.uniform(-0.01, 0.01),
-                overdue_days=75,
-                last_inspection_score=82.0,
-                traffic_density=110,
-                corridor_priority=meta["priority"],
-                estimated_duration_mins=duration_input,
-                is_heavy_machinery=heavy_toggle,
-                exclusive_block=heavy_toggle,
-            )
-            st.session_state["custom_requests"].append(new_entry)
-            st.session_state["recent_activities"].insert(0, {
-                "time": datetime.now().strftime("%H:%M:%S IST"),
-                "user": st.session_state["user_designation"],
-                "event": f"Raised work order {nid} [{action_input}] on {corridor_input}",
-            })
-            st.success(f"Work order {nid} added to joint queue.")
-            time.sleep(0.3)
-            st.rerun()
-
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with wo_col2:
-        st.markdown(f"""
-        <div class="ty-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <div style="font-size:14px;font-weight:800;color:#FFFFFF;">
-              Master Requisitions Pool ({len(combined_df)} Orders)
-            </div>
-            <div>
-              <span class="ty-badge ty-badge-green">{scheduled_tasks} Scheduled</span>
-              <span class="ty-badge ty-badge-red">{deferred_tasks} Deferred</span>
-            </div>
-          </div>
-        """, unsafe_allow_html=True)
-
-        display_df = priority_df[[
-            "request_id", "department", "action", "corridor",
-            "estimated_duration_mins", "priority_score", "priority_level"
-        ]].copy()
-        display_df.columns = ["Order ID", "Dept", "Activity", "Corridor", "Mins", "Priority", "Band"]
-
-        st.dataframe(
-            display_df,
-            use_container_width=True,
-            height=380,
-            hide_index=True,
-        )
-
-        # CSV Download preserved
-        csv_buffer = io.StringIO()
-        priority_df.to_csv(csv_buffer, index=False)
-        st.download_button(
-            label=f"📥  {T['btn_export']}",
-            data=csv_buffer.getvalue(),
-            file_name=f"trackyukti_requisitions_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
-            mime="text/csv",
-            use_container_width=True,
-        )
-        st.markdown('</div>', unsafe_allow_html=True)
-
-
-# =============================================================================
-#  MODULE 3: MASTER BLOCK TIMETABLE & GANTT (PRESERVED & UPGRADED)
-# =============================================================================
-elif selected_module == "📊 Master Block Timetable":
-    st.markdown('<div class="ty-section-heading">Corridor Rolling Block Master Timetable (24-Hour Operations Grid)</div>', unsafe_allow_html=True)
-
-    st.markdown("""
-    <div class="ty-card" style="padding:16px 20px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-        <div style="font-size:13px;color:#CBD5E1;">
-          High-resolution Plotly Gantt rendering synchronized cross-departmental rolling possession blocks.
-        </div>
-        <div>
-          <span class="ty-badge" style="background:rgba(56,189,248,0.25);color:#38BDF8;">■ Civil / P-Way</span>
-          <span class="ty-badge" style="background:rgba(252,211,77,0.25);color:#FCD34D;">■ S&T Interlocking</span>
-          <span class="ty-badge" style="background:rgba(192,132,252,0.25);color:#C084FC;">■ Electrical OHE</span>
-        </div>
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    gantt_df = schedule[schedule["is_scheduled"]].copy()
-    if sel_corr != "All Corridors (Jabalpur Division)":
-        gantt_df = gantt_df[gantt_df["corridor"] == sel_corr]
-
-    if gantt_df.empty:
-        st.warning(f"No scheduled blocks for {sel_corr}.")
-    else:
-        bt = datetime.combine(datetime.today(), datetime.min.time())
-        gantt_df["Start"]  = gantt_df["start_min"].apply(lambda m: bt + timedelta(minutes=float(m)))
-        gantt_df["Finish"] = gantt_df["end_min"].apply(lambda m: bt + timedelta(minutes=float(m)))
-        gantt_df["Label"]  = gantt_df.apply(
-            lambda r: f"{r['request_id']} ({r['department'][:3]})"
-            + (" [EXCL]" if r.get("is_heavy_machinery") else "")
-            + (" [SHIFT]" if r["dynamically_shifted"] else ""),
-            axis=1,
-        )
-
-        fig = px.timeline(
-            gantt_df,
-            x_start="Start",
-            x_end="Finish",
-            y="section_track",
-            color="department",
-            color_discrete_map=DEPT_COLORS,
-            text="Label",
-            hover_data={
-                "request_id": True, "department": True, "action": True,
-                "risk_score": True, "corridor": True, "estimated_duration_mins": True,
-                "section_track": False, "Start": False, "Finish": False,
-            },
-        )
-        fig.update_yaxes(
-            autorange="reversed",
-            title=dict(text="Corridor Track Section", font=dict(color="#FFFFFF", size=12)),
-            tickfont=dict(color="#FFFFFF", size=11),
-            gridcolor="rgba(255,255,255,0.08)",
-            showgrid=True,
-        )
-        fig.update_xaxes(
-            title=dict(text=f"Time Window (00:00 – {horizon_hours:02d}:00 IST)", font=dict(color="#FFFFFF", size=12)),
-            tickfont=dict(color="#FFFFFF", size=11),
-            gridcolor="rgba(255,255,255,0.08)",
-        )
-        fig.update_traces(
-            textposition="inside",
-            insidetextanchor="start",
-            marker_line_width=1.5,
-            marker_line_color="rgba(255,255,255,0.30)",
-        )
-        fig.update_layout(
-            template="plotly_dark",
-            plot_bgcolor="rgba(6, 12, 30, 0.95)",
-            paper_bgcolor="rgba(6, 12, 30, 0.95)",
-            font=dict(color="#FFFFFF", family="Inter"),
-            legend=dict(
-                orientation="h", y=1.06, x=1, xanchor="right",
-                font=dict(color="#FFFFFF", size=11),
-                bgcolor="rgba(7,14,34,0.85)",
-                bordercolor="rgba(255,255,255,0.15)",
-                borderwidth=1,
-            ),
-            height=max(420, 80 + 44 * gantt_df["section_track"].nunique()),
-            margin=dict(l=10, r=10, t=36, b=10),
-        )
-        st.plotly_chart(fig, use_container_width=True)
-
-    # Detailed Blocks Ledger Table
-    st.markdown('<div class="ty-section-heading" style="margin-top:16px;">Scheduled Blocks Detailed Register</div>', unsafe_allow_html=True)
-    t_df = gantt_df[[
-        "request_id", "department", "action", "section_track",
-        "start_min", "end_min", "estimated_duration_mins", "risk_score"
-    ]].copy()
-    t_df["start_min"] = t_df["start_min"].apply(lambda m: f"{int(m)//60:02d}:{int(m)%60:02d}")
-    t_df["end_min"]   = t_df["end_min"].apply(lambda m: f"{int(m)//60:02d}:{int(m)%60:02d}")
-    t_df.columns = ["Order ID", "Dept", "Activity", "Track Section", "Start Time", "Clearance Time", "Duration (Mins)", "Risk Score"]
-
-    st.dataframe(t_df, use_container_width=True, height=280, hide_index=True)
-
-
-# =============================================================================
-#  MODULE 4: SMART BLOCK OPTIMIZER & TASK BUNDLING ENGINE
-# =============================================================================
-elif selected_module == "⚡ Smart Block Optimizer":
+with tab_opt:
     st.markdown('<div class="ty-section-heading">Smart Multi-Department Task Bundling & Optimization Engine</div>', unsafe_allow_html=True)
 
     # Workflow Visualizer Ribbon
@@ -1478,7 +1222,6 @@ elif selected_module == "⚡ Smart Block Optimizer":
 
     # 3. Partial Bundle Opportunities & Exclusive Tasks
     p1, p2 = st.columns(2)
-
     with p1:
         st.markdown('<div class="ty-section-heading">Partial Bundle Opportunities</div>', unsafe_allow_html=True)
         if not partial_opps:
@@ -1523,14 +1266,109 @@ elif selected_module == "⚡ Smart Block Optimizer":
                 </div>
                 """, unsafe_allow_html=True)
 
+# =============================================================================
+#  TAB 3: MASTER BLOCK TIMETABLE & GANTT (PRESERVED & UPGRADED)
+# =============================================================================
+with tab_time:
+    st.markdown('<div class="ty-section-heading">Corridor Rolling Block Master Timetable (24-Hour Operations Grid)</div>', unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="ty-card" style="padding:16px 20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div style="font-size:13px;color:#CBD5E1;">
+          High-resolution Plotly Gantt rendering synchronized cross-departmental rolling possession blocks.
+        </div>
+        <div>
+          <span class="ty-badge" style="background:rgba(56,189,248,0.25);color:#38BDF8;">■ Civil / P-Way</span>
+          <span class="ty-badge" style="background:rgba(252,211,77,0.25);color:#FCD34D;">■ S&T Interlocking</span>
+          <span class="ty-badge" style="background:rgba(192,132,252,0.25);color:#C084FC;">■ Electrical OHE</span>
+        </div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    gantt_df = schedule[schedule["is_scheduled"]].copy()
+    if sel_corr != "All Corridors (Jabalpur Division)":
+        gantt_df = gantt_df[gantt_df["corridor"] == sel_corr]
+
+    if gantt_df.empty:
+        st.warning(f"No scheduled blocks for {sel_corr}.")
+    else:
+        bt = datetime.combine(datetime.today(), datetime.min.time())
+        gantt_df["Start"]  = gantt_df["start_min"].apply(lambda m: bt + timedelta(minutes=float(m)))
+        gantt_df["Finish"] = gantt_df["end_min"].apply(lambda m: bt + timedelta(minutes=float(m)))
+        gantt_df["Label"]  = gantt_df.apply(
+            lambda r: f"{r['request_id']} ({r['department'][:3]})"
+            + (" [EXCL]" if r.get("is_heavy_machinery") else "")
+            + (" [SHIFT]" if r["dynamically_shifted"] else ""),
+            axis=1,
+        )
+
+        fig = px.timeline(
+            gantt_df,
+            x_start="Start",
+            x_end="Finish",
+            y="section_track",
+            color="department",
+            color_discrete_map=DEPT_COLORS,
+            text="Label",
+            hover_data={
+                "request_id": True, "department": True, "action": True,
+                "risk_score": True, "corridor": True, "estimated_duration_mins": True,
+                "section_track": False, "Start": False, "Finish": False,
+            },
+        )
+        fig.update_yaxes(
+            autorange="reversed",
+            title=dict(text="Corridor Track Section", font=dict(color="#FFFFFF", size=12)),
+            tickfont=dict(color="#FFFFFF", size=11),
+            gridcolor="rgba(255,255,255,0.08)",
+            showgrid=True,
+        )
+        fig.update_xaxes(
+            title=dict(text=f"Time Window (00:00 – {horizon_hours:02d}:00 IST)", font=dict(color="#FFFFFF", size=12)),
+            tickfont=dict(color="#FFFFFF", size=11),
+            gridcolor="rgba(255,255,255,0.08)",
+        )
+        fig.update_traces(
+            textposition="inside",
+            insidetextanchor="start",
+            marker_line_width=1.5,
+            marker_line_color="rgba(255,255,255,0.30)",
+        )
+        fig.update_layout(
+            template="plotly_dark",
+            plot_bgcolor="rgba(6, 12, 30, 0.95)",
+            paper_bgcolor="rgba(6, 12, 30, 0.95)",
+            font=dict(color="#FFFFFF", family="Inter"),
+            legend=dict(
+                orientation="h", y=1.06, x=1, xanchor="right",
+                font=dict(color="#FFFFFF", size=11),
+                bgcolor="rgba(7,14,34,0.85)",
+                bordercolor="rgba(255,255,255,0.15)",
+                borderwidth=1,
+            ),
+            height=max(420, 80 + 44 * gantt_df["section_track"].nunique()),
+            margin=dict(l=10, r=10, t=36, b=10),
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+    st.markdown('<div class="ty-section-heading" style="margin-top:16px;">Scheduled Blocks Detailed Register</div>', unsafe_allow_html=True)
+    t_df = gantt_df[[
+        "request_id", "department", "action", "section_track",
+        "start_min", "end_min", "estimated_duration_mins", "risk_score"
+    ]].copy()
+    t_df["start_min"] = t_df["start_min"].apply(lambda m: f"{int(m)//60:02d}:{int(m)%60:02d}")
+    t_df["end_min"]   = t_df["end_min"].apply(lambda m: f"{int(m)//60:02d}:{int(m)%60:02d}")
+    t_df.columns = ["Order ID", "Dept", "Activity", "Track Section", "Start Time", "Clearance Time", "Duration (Mins)", "Risk Score"]
+    st.dataframe(t_df, use_container_width=True, height=280, hide_index=True)
 
 # =============================================================================
-#  MODULE 5: PRIORITY INTELLIGENCE & EXPLAINABLE SCORING
+#  TAB 4: PRIORITY INTELLIGENCE & EXPLAINABLE SCORING
 # =============================================================================
-elif selected_module == "🎯 Priority Intelligence":
+with tab_prio:
     st.markdown('<div class="ty-section-heading">Explainable Multi-Factor Priority Intelligence (0–100 Scoring Model)</div>', unsafe_allow_html=True)
 
-    # 5 Factor Breakdown Cards
     f1, f2, f3, f4, f5 = st.columns(5)
     with f1:
         st.markdown("""
@@ -1573,7 +1411,6 @@ elif selected_module == "🎯 Priority Intelligence":
         </div>
         """, unsafe_allow_html=True)
 
-    # Priority Bands Distribution
     st.markdown('<div class="ty-divider"></div>', unsafe_allow_html=True)
     st.markdown('<div class="ty-section-heading">Priority Classification Register & Explainability Log</div>', unsafe_allow_html=True)
 
@@ -1589,18 +1426,15 @@ elif selected_module == "🎯 Priority Intelligence":
         "Priority Band", "Safety (30%)", "Urgency (25%)", "Defect (20%)",
         "Overdue (15%)", "Traffic (10%)", "Technical Justification"
     ]
-
     st.dataframe(p_disp, use_container_width=True, height=420, hide_index=True)
 
-
 # =============================================================================
-#  MODULE 6: PASSENGER & FREIGHT IMPACT ANALYSIS
+#  TAB 5: PASSENGER & FREIGHT IMPACT ANALYSIS
 # =============================================================================
-elif selected_module == "🚆 Passenger & Freight Impact":
+with tab_impact:
     st.markdown('<div class="ty-section-heading">Corridor Passenger & Freight Traffic Impact Assessment</div>', unsafe_allow_html=True)
 
     pt_col, ft_col = st.columns([1, 1.3])
-
     with pt_col:
         st.markdown("""
         <div class="ty-card">
@@ -1670,11 +1504,10 @@ elif selected_module == "🚆 Passenger & Freight Impact":
         st.dataframe(f_df, use_container_width=True, height=240, hide_index=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-
 # =============================================================================
-#  MODULE 7: FINANCIAL IMPACT AUDIT & DEMURRAGE MODEL
+#  TAB 6: FINANCIAL IMPACT AUDIT & DEMURRAGE MODEL
 # =============================================================================
-elif selected_module == "💰 Financial Impact Audit":
+with tab_fin:
     st.markdown('<div class="ty-section-heading">Model-Based Financial Demurrage & Energy Impact Audit</div>', unsafe_allow_html=True)
 
     st.markdown("""
@@ -1695,21 +1528,19 @@ elif selected_module == "💰 Financial Impact Audit":
     """, unsafe_allow_html=True)
 
     # Cost Factor Slider
-    cf_col1, cf_col2 = st.columns([1.2, 1])
+    cf_col1, _ = st.columns([1.2, 1])
     with cf_col1:
         st.session_state["cost_factor"] = st.slider(
             "Configurable Demurrage & Detention Cost Factor (₹ / Train Minute)",
             min_value=500, max_value=3000, value=int(st.session_state["cost_factor"]), step=100
         )
 
-    # Recompute with live slider
     fin_live = compute_financial_impact(
         freight_impact["affected_freight_trains"],
         freight_impact["total_freight_delay_mins"],
         cost_factor_per_min=float(st.session_state["cost_factor"]),
     )
 
-    # Comparative Financial Cards
     fc1, fc2, fc3 = st.columns(3)
     with fc1:
         st.markdown(f"""
@@ -1736,7 +1567,6 @@ elif selected_module == "💰 Financial Impact Audit":
         </div>
         """, unsafe_allow_html=True)
 
-    # Energy & Environmental Audit Certificate
     st.markdown('<div class="ty-divider"></div>', unsafe_allow_html=True)
     st.markdown(f"""
     <div class="ty-card" style="border-left:4px solid #10B981;">
@@ -1759,11 +1589,10 @@ elif selected_module == "💰 Financial Impact Audit":
     </div>
     """, unsafe_allow_html=True)
 
-
 # =============================================================================
-#  MODULE 8: WHAT-IF SIMULATION LAB
+#  TAB 7: WHAT-IF SIMULATION LAB
 # =============================================================================
-elif selected_module == "🧪 What-If Simulation Lab":
+with tab_sim:
     st.markdown('<div class="ty-section-heading">Operational What-If Scenario Stress Testing Lab</div>', unsafe_allow_html=True)
 
     st.markdown("""
@@ -1776,7 +1605,6 @@ elif selected_module == "🧪 What-If Simulation Lab":
     """, unsafe_allow_html=True)
 
     sim1, sim2 = st.columns(2)
-
     with sim1:
         st.markdown('<div class="ty-section-heading">Disruption Scenario Injection Controls</div>', unsafe_allow_html=True)
         st.markdown('<div class="ty-card">', unsafe_allow_html=True)
@@ -1836,11 +1664,10 @@ elif selected_module == "🧪 What-If Simulation Lab":
         </div>
         """, unsafe_allow_html=True)
 
-
 # =============================================================================
-#  MODULE 9: APPROVAL & EXECUTION WORKFLOW
+#  TAB 8: APPROVAL & EXECUTION WORKFLOW
 # =============================================================================
-elif selected_module == "🛡️ Approval & Execution Workflow":
+with tab_wf:
     st.markdown('<div class="ty-section-heading">Multi-Stage Role-Based Approval & Department Execution Workflow</div>', unsafe_allow_html=True)
 
     wf_status = st.session_state["workflow_status"]
@@ -1849,7 +1676,6 @@ elif selected_module == "🛡️ Approval & Execution Workflow":
         "Divisional Railway Manager", "Sr. DOM", "Divisional Safety Officer"
     ])
 
-    # Status Timeline Ribbon
     st.markdown(f"""
     <div class="ty-card" style="padding:16px 20px;">
       <div style="font-size:11px;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-bottom:8px;">
@@ -1872,7 +1698,6 @@ elif selected_module == "🛡️ Approval & Execution Workflow":
     </div>
     """, unsafe_allow_html=True)
 
-    # 1. Chief Controller Decision Section
     st.markdown('<div class="ty-section-heading">Stage 1: Chief Controller Formal Authorization</div>', unsafe_allow_html=True)
 
     if wf_status == "AWAITING_APPROVAL":
@@ -1919,7 +1744,6 @@ elif selected_module == "🛡️ Approval & Execution Workflow":
         </div>
         """, unsafe_allow_html=True)
 
-    # 2. Four Department Execution Tracker
     st.markdown('<div class="ty-divider"></div>', unsafe_allow_html=True)
     st.markdown('<div class="ty-section-heading">Stage 2 & 3: Department Work Execution & Status Updates</div>', unsafe_allow_html=True)
 
@@ -1932,7 +1756,6 @@ elif selected_module == "🛡️ Approval & Execution Workflow":
     ]
 
     all_completed = True
-
     for i, (dept_name, dept_head, desc) in enumerate(depts_list):
         with d_cols[i]:
             c_status = st.session_state["dept_work_status"][dept_name]
@@ -1974,7 +1797,6 @@ elif selected_module == "🛡️ Approval & Execution Workflow":
 
             st.markdown('</div>', unsafe_allow_html=True)
 
-    # 3. Final Verification & Closure Stage
     st.markdown('<div class="ty-divider"></div>', unsafe_allow_html=True)
     st.markdown('<div class="ty-section-heading">Stage 4: Chief Controller Final Verification & Block Closure</div>', unsafe_allow_html=True)
 
@@ -2023,7 +1845,7 @@ elif selected_module == "🛡️ Approval & Execution Workflow":
         </div>
         """, unsafe_allow_html=True)
 
-    # 4. CRIS SMS Gateway Broadcast Log
+    # CRIS SMS Gateway Broadcast Log
     st.markdown('<div class="ty-divider"></div>', unsafe_allow_html=True)
     st.markdown('<div class="ty-section-heading">CRIS SMS Gateway Real-Time Broadcast Ledger</div>', unsafe_allow_html=True)
 
@@ -2062,6 +1884,110 @@ elif selected_module == "🛡️ Approval & Execution Workflow":
           </div>
         </div>
         """, unsafe_allow_html=True)
+
+# =============================================================================
+#  TAB 9: WORK ORDERS & REQUISITIONS (PRESERVED)
+# =============================================================================
+with tab_orders:
+    st.markdown('<div class="ty-section-heading">Departmental Block Requisition & Work Order Queue</div>', unsafe_allow_html=True)
+
+    wo_col1, wo_col2 = st.columns([1, 1.4])
+    with wo_col1:
+        st.markdown(f"""
+        <div class="ty-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div style="font-size:14px;font-weight:800;color:#FFFFFF;">
+              {T['config_header']}
+            </div>
+            <span class="ty-badge">{st.session_state['user_dept']}</span>
+          </div>
+        """, unsafe_allow_html=True)
+
+        is_chc = (st.session_state["user_dept"] == "Chief Controller / DRM")
+        form_branch = (
+            st.selectbox(f"{T['branch_label']}:", ["Engineering", "S&T", "Electrical"], key="wo_fb")
+            if is_chc else st.session_state["user_dept"]
+        )
+
+        c1, c2 = st.columns(2)
+        with c1:
+            corridor_input = st.selectbox(T["corridor_label"], list(CORRIDORS.keys()), index=1, key="wo_ci")
+        with c2:
+            track_input = st.selectbox(T["track_label"], CORRIDORS[corridor_input]["tracks"], index=0, key="wo_ti")
+
+        action_input   = st.selectbox(T["action_label"], BRANCH_ACTIONS[form_branch], key="wo_ai")
+        duration_input = st.slider(T["duration_label"], 30, 240, 90, step=15, key="wo_di")
+        heavy_toggle   = st.checkbox(T["heavy_label"], value=False, key="wo_ht")
+
+        if st.button(T["btn_push"], type="primary", use_container_width=True):
+            nid  = f"WCR-REQ-{1050 + len(st.session_state['custom_requests'])}"
+            meta = CORRIDORS[corridor_input]
+            new_entry = dict(
+                request_id=nid,
+                department=form_branch,
+                action=action_input,
+                corridor=corridor_input,
+                section_track=f"{corridor_input} :: {track_input}",
+                asset_id=f"AST-{form_branch[:3].upper()}-9901",
+                latitude=meta["lat"] + np.random.uniform(-0.01, 0.01),
+                longitude=meta["lon"] + np.random.uniform(-0.01, 0.01),
+                overdue_days=75,
+                last_inspection_score=82.0,
+                traffic_density=110,
+                corridor_priority=meta["priority"],
+                estimated_duration_mins=duration_input,
+                is_heavy_machinery=heavy_toggle,
+                exclusive_block=heavy_toggle,
+            )
+            st.session_state["custom_requests"].append(new_entry)
+            st.session_state["recent_activities"].insert(0, {
+                "time": datetime.now().strftime("%H:%M:%S IST"),
+                "user": st.session_state["user_designation"],
+                "event": f"Raised work order {nid} [{action_input}] on {corridor_input}",
+            })
+            st.success(f"Work order {nid} added to joint queue.")
+            time.sleep(0.3)
+            st.rerun()
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with wo_col2:
+        st.markdown(f"""
+        <div class="ty-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div style="font-size:14px;font-weight:800;color:#FFFFFF;">
+              Master Requisitions Pool ({len(combined_df)} Orders)
+            </div>
+            <div>
+              <span class="ty-badge ty-badge-green">{scheduled_tasks} Scheduled</span>
+              <span class="ty-badge ty-badge-red">{deferred_tasks} Deferred</span>
+            </div>
+          </div>
+        """, unsafe_allow_html=True)
+
+        display_df = priority_df[[
+            "request_id", "department", "action", "corridor",
+            "estimated_duration_mins", "priority_score", "priority_level"
+        ]].copy()
+        display_df.columns = ["Order ID", "Dept", "Activity", "Corridor", "Mins", "Priority", "Band"]
+
+        st.dataframe(
+            display_df,
+            use_container_width=True,
+            height=380,
+            hide_index=True,
+        )
+
+        csv_buffer = io.StringIO()
+        priority_df.to_csv(csv_buffer, index=False)
+        st.download_button(
+            label=f"📥  {T['btn_export']}",
+            data=csv_buffer.getvalue(),
+            file_name=f"trackyukti_requisitions_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
+            mime="text/csv",
+            use_container_width=True,
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # FOOTER
