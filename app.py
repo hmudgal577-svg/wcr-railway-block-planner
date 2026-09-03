@@ -403,54 +403,52 @@ div[data-testid="stExpander"] summary span {{
 .js-plotly-plot .plotly {{ background: transparent !important; }}
 
 /* ══════════════════════════════════════════════════════
-   6.  COMPONENT TOKENS — premium glassmorphism
-   All backgrounds use low-opacity rgba so train shows through
+   6.  COMPONENT TOKENS — readable on top of train BG
+   Cards: dark + blur so train shows at edges but text is sharp
 ══════════════════════════════════════════════════════ */
 
-/* ── LOGIN SHELL — full premium glass ── */
+/* ── LOGIN SHELL ── */
 .ty-login-shell {{
     max-width: 900px;
     margin: 24px auto;
-    background: rgba(5, 10, 25, 0.52);
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(4, 8, 22, 0.82);
+    backdrop-filter: blur(32px) saturate(180%);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.20);
     border-top: 3px solid #F59E0B;
     border-radius: 18px;
     padding: 38px 48px 36px;
     box-shadow:
         0 0 0 1px rgba(255,255,255,0.06) inset,
-        0 32px 80px rgba(0,0,0,0.40),
-        0 8px 24px rgba(0,0,0,0.25);
+        0 32px 80px rgba(0,0,0,0.50);
 }}
 
-/* ── GENERIC GLASS CARD ── */
+/* ── GENERIC GLASS CARD — more opaque for readability ── */
 .ty-card {{
-    background: rgba(5, 10, 25, 0.48);
-    backdrop-filter: blur(18px) saturate(160%);
-    -webkit-backdrop-filter: blur(18px) saturate(160%);
-    border: 1px solid rgba(255,255,255,0.14);
-    border-radius: 14px;
-    padding: 20px 22px;
+    background: rgba(4, 8, 22, 0.82);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 12px;
+    padding: 18px 20px;
     margin-bottom: 14px;
     box-shadow:
-        0 1px 0 rgba(255,255,255,0.06) inset,
-        0 8px 28px rgba(0,0,0,0.22);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        0 1px 0 rgba(255,255,255,0.07) inset,
+        0 8px 28px rgba(0,0,0,0.35);
+    transition: border-color 0.2s ease, transform 0.2s ease;
 }}
 .ty-card:hover {{
-    border-color: rgba(255,255,255,0.22);
-    box-shadow: 0 12px 36px rgba(0,0,0,0.30);
+    border-color: rgba(255,255,255,0.26);
     transform: translateY(-1px);
 }}
 
 /* ── TOP HEADER BANNER ── */
 .ty-header {{
-    background: rgba(5, 10, 25, 0.55);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(255,255,255,0.14);
-    border-bottom: 2px solid rgba(245,158,11,0.40);
+    background: rgba(4, 8, 22, 0.84);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-bottom: 2px solid rgba(245,158,11,0.50);
     border-radius: 14px;
     padding: 16px 26px;
     margin-bottom: 18px;
@@ -459,115 +457,119 @@ div[data-testid="stExpander"] summary span {{
     align-items: center;
     flex-wrap: wrap;
     gap: 14px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.28);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.40);
 }}
 
 /* ── STAT TILES ── */
 .ty-stat {{
-    background: rgba(5, 10, 25, 0.50);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(4, 8, 22, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.15);
     border-radius: 10px;
     padding: 14px 16px;
     transition: border-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.30);
 }}
 .ty-stat:hover {{
-    border-color: rgba(255,255,255,0.22);
+    border-color: rgba(255,255,255,0.28);
     transform: translateY(-2px);
 }}
 .ty-stat-label {{
-    font-size: 10.5px;
+    font-size: 11px;
     font-weight: 700;
-    color: rgba(148,163,184,0.85);
+    color: #94A3B8;
     text-transform: uppercase;
     letter-spacing: 0.07em;
 }}
 .ty-stat-value {{
     font-size: 22px;
     font-weight: 900;
+    color: #FFFFFF;
     margin-top: 4px;
     line-height: 1.1;
 }}
 
 /* — Financial metric cards — */
 .ty-fin {{
-    background: rgba(8,20,50,0.75);
-    backdrop-filter: blur(14px);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(4, 8, 22, 0.82);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.12);
     border-top: 3px solid;
     border-radius: 10px;
     padding: 18px 20px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.30);
 }}
 .ty-fin:hover {{
     transform: translateY(-3px);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.30);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.40);
 }}
 .ty-fin-label {{
-    font-size: 10.5px;
+    font-size: 11px;
     font-weight: 700;
-    color: #64748B;
+    color: #94A3B8;
     text-transform: uppercase;
     letter-spacing: 0.07em;
 }}
 .ty-fin-value {{
     font-size: 26px;
     font-weight: 900;
-    color: #F1F5F9;
+    color: #FFFFFF;
     margin: 6px 0 3px;
     line-height: 1.15;
 }}
 .ty-fin-sub {{
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 600;
     color: #4ADE80;
 }}
 
 /* — Alert banners — */
 .ty-alert-danger {{
-    background: rgba(127,29,29,0.22);
-    border: 1px solid rgba(248,113,113,0.28);
+    background: rgba(90, 10, 10, 0.80);
+    border: 1px solid rgba(248,113,113,0.40);
     border-left: 4px solid #EF4444;
     border-radius: 10px;
     padding: 13px 16px;
-    color: #FCA5A5;
+    color: #FECACA;
     margin-bottom: 14px;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(14px);
 }}
 .ty-alert-warn {{
-    background: rgba(92,45,0,0.22);
-    border: 1px solid rgba(253,211,77,0.25);
+    background: rgba(70, 30, 0, 0.80);
+    border: 1px solid rgba(253,211,77,0.35);
     border-left: 4px solid #F59E0B;
     border-radius: 10px;
     padding: 13px 16px;
     color: #FDE68A;
     margin-bottom: 14px;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(14px);
 }}
 .ty-alert-success {{
-    background: rgba(6,78,59,0.26);
-    border: 1px solid rgba(52,211,153,0.25);
+    background: rgba(4, 50, 35, 0.82);
+    border: 1px solid rgba(52,211,153,0.35);
     border-left: 4px solid #10B981;
     border-radius: 10px;
     padding: 14px 18px;
     color: #A7F3D0;
     margin-bottom: 14px;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(14px);
 }}
 
 /* — SMS log rows — */
 .ty-sms {{
-    background: rgba(14,36,96,0.38);
-    border: 1px solid rgba(96,165,250,0.20);
+    background: rgba(8, 20, 70, 0.82);
+    border: 1px solid rgba(96,165,250,0.30);
     border-left: 3px solid #3B82F6;
     border-radius: 7px;
     padding: 9px 13px;
-    font-size: 12px;
+    font-size: 12.5px;
     color: #BAE6FD;
     margin-top: 7px;
     font-family: 'JetBrains Mono', monospace;
     letter-spacing: 0.01em;
+    font-weight: 500;
 }}
 
 /* — Badges — */
@@ -575,9 +577,9 @@ div[data-testid="stExpander"] summary span {{
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    background: rgba(37,99,235,0.18);
-    color: #93C5FD;
-    border: 1px solid rgba(59,130,246,0.26);
+    background: rgba(30, 58, 138, 0.70);
+    color: #BFDBFE;
+    border: 1px solid rgba(99,155,255,0.40);
     padding: 3px 10px;
     border-radius: 5px;
     font-size: 11.5px;
@@ -585,14 +587,14 @@ div[data-testid="stExpander"] summary span {{
     letter-spacing: 0.02em;
 }}
 .ty-badge-green {{
-    background: rgba(6,78,59,0.25);
+    background: rgba(4, 50, 35, 0.70);
     color: #6EE7B7;
-    border: 1px solid rgba(52,211,153,0.25);
+    border: 1px solid rgba(52,211,153,0.40);
 }}
 .ty-badge-amber {{
-    background: rgba(92,45,0,0.25);
+    background: rgba(70, 30, 0, 0.70);
     color: #FCD34D;
-    border: 1px solid rgba(245,158,11,0.28);
+    border: 1px solid rgba(245,158,11,0.40);
 }}
 
 /* — Pulse dot — */
@@ -611,45 +613,74 @@ div[data-testid="stExpander"] summary span {{
 
 /* — Clock pill — */
 .ty-clock {{
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(4, 8, 22, 0.75);
+    border: 1px solid rgba(255,255,255,0.20);
     border-radius: 8px;
     padding: 7px 16px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 12.5px;
     font-weight: 600;
-    color: #E2E8F0;
+    color: #FFFFFF;
     display: inline-flex;
     align-items: center;
     gap: 9px;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(14px);
 }}
 
 /* — Divider — */
 .ty-divider {{
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(148,163,184,0.18), transparent);
+    background: linear-gradient(90deg, transparent, rgba(148,163,184,0.30), transparent);
     margin: 16px 0;
     border: none;
 }}
 
 /* — Section heading — */
 .ty-section-heading {{
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 800;
-    color: #94A3B8;
+    color: #CBD5E1;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.09em;
     margin-bottom: 10px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.50);
 }}
 
-/* Plotly charts transparent bg — DUPLICATE GUARD (already set above) */
+/* ── GLOBAL TEXT FORCE-WHITE in main content ──
+   When background is train image, ALL Streamlit-rendered
+   text must be forced white so it shows on the dark card bg.
+── */
+/* All Streamlit default-dark text → white */
+.stApp [data-testid="stMarkdownContainer"] p,
+.stApp [data-testid="stMarkdownContainer"] li,
+.stApp [data-testid="stMarkdownContainer"] span,
+.stApp [data-testid="stMarkdownContainer"] strong,
+.stApp [data-testid="stMarkdownContainer"] b {{
+    color: #E2E8F0 !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.60);
+}}
+.stApp [data-testid="stMarkdownContainer"] h1,
+.stApp [data-testid="stMarkdownContainer"] h2,
+.stApp [data-testid="stMarkdownContainer"] h3,
+.stApp [data-testid="stMarkdownContainer"] h4 {{
+    color: #FFFFFF !important;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.70);
+}}
+
+/* Caption text */
+.stApp .stCaption, .stApp .stCaption p {{ color: #94A3B8 !important; }}
+
+/* Warning/info/error boxes */
+.stApp .stAlert p {{ color: #FFFFFF !important; }}
+
+/* Plotly charts transparent bg */
 .js-plotly-plot .plotly, .plotly-graph-div {{ background: transparent !important; }}
 </style>
 """, unsafe_allow_html=True)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+
 # DUAL-LANGUAGE TERMINOLOGY MATRIX
 # ─────────────────────────────────────────────────────────────────────────────
 TRANS = {
